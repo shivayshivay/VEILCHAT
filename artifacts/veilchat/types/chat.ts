@@ -2,6 +2,11 @@ export type MessageStatus = "pending" | "sent" | "delivered" | "read" | "failed"
 export type MessageType = "text" | "voice" | "image" | "video" | "file";
 export type CallType = "incoming" | "outgoing" | "missed";
 
+export interface MessageReaction {
+  emoji: string;
+  userIds: string[];
+}
+
 export interface Message {
   id: string;
   conversationId: string;
@@ -11,8 +16,15 @@ export interface Message {
   status: MessageStatus;
   timestamp: number;
   replyToId?: string;
+  replyToText?: string;
+  replyToSenderId?: string;
   mediaUrl?: string;
+  fileName?: string;
+  fileSize?: number;
   duration?: number;
+  reactions?: MessageReaction[];
+  isOptimistic?: boolean;
+  editedAt?: number;
 }
 
 export interface Contact {
@@ -46,4 +58,13 @@ export interface CallRecord {
   isVideo: boolean;
   timestamp: number;
   duration: number;
+}
+
+export interface SendMessagePayload {
+  text: string;
+  myId: string;
+  myName: string;
+  replyToId?: string;
+  mediaUrl?: string;
+  type?: MessageType;
 }
