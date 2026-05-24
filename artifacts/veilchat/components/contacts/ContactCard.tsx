@@ -3,7 +3,7 @@ import { Pressable, StyleSheet, Text, View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { Avatar } from "@/components/ui/Avatar";
 import { useColors } from "@/hooks/useColors";
-import { Contact } from "@/context/ChatContext";
+import { Contact } from "@/types/chat";
 
 interface Props {
   contact: Contact;

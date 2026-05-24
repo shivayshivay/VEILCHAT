@@ -7,16 +7,19 @@ import { Ionicons } from "@expo/vector-icons";
 import { Avatar } from "@/components/ui/Avatar";
 import { ChatBubble } from "@/components/chat/ChatBubble";
 import { MessageInput } from "@/components/chat/MessageInput";
-import { useAuth } from "@/context/AuthContext";
-import { useChat, Message } from "@/context/ChatContext";
+import { useAuthStore } from "@/store/authStore";
+import { useChatStore } from "@/store/chatStore";
+import { useUiStore } from "@/store/uiStore";
 import { useColors } from "@/hooks/useColors";
+import { Message } from "@/types/chat";
 
 export default function ChatScreen() {
   const colors = useColors();
   const insets = useSafeAreaInsets();
   const { id } = useLocalSearchParams<{ id: string }>();
-  const { user } = useAuth();
-  const { contacts, getMessages, sendMessage, markRead } = useChat();
+  const user = useAuthStore((s) => s.user);
+  const { contacts, getMessages, sendMessage, markRead } = useChatStore();
+  const { startCall } = useUiStore();
 
   const contact = contacts.find((c) => c.id === id);
   const messages = getMessages(id ?? "");
@@ -24,7 +27,7 @@ export default function ChatScreen() {
 
   React.useEffect(() => {
     if (id) markRead(id);
-  }, [id]);
+  }, [id, markRead]);
 
   const handleSend = useCallback(
     (text: string) => {
@@ -51,40 +54,37 @@ export default function ChatScreen() {
       <View
         style={[
           styles.header,
-          {
-            paddingTop: topPad + 10,
-            backgroundColor: colors.background,
-            borderBottomColor: colors.border,
-          },
+          { paddingTop: topPad + 8, backgroundColor: colors.background, borderBottomColor: colors.border },
         ]}
       >
         <Pressable onPress={() => router.back()} style={styles.backBtn}>
           <Ionicons name="chevron-back" size={26} color={colors.foreground} />
         </Pressable>
-        <Avatar name={contact.name} color={contact.avatarColor} size={38} isOnline={contact.isOnline} showOnline />
+        <Avatar name={contact.name} color={contact.avatarColor} size={36} isOnline={contact.isOnline} showOnline />
         <View style={styles.headerInfo}>
-          <Text style={[styles.headerName, { color: colors.foreground, fontFamily: "Inter_600SemiBold" }]} numberOfLines={1}>
-            {contact.name}
-          </Text>
+          <View style={styles.headerNameRow}>
+            <Text style={[styles.headerName, { color: colors.foreground, fontFamily: "Inter_600SemiBold" }]} numberOfLines={1}>
+              {contact.name}
+            </Text>
+            {contact.isVerified && (
+              <Ionicons name="shield-checkmark" size={13} color={colors.primary} />
+            )}
+          </View>
           <Text style={[styles.headerStatus, { color: contact.isOnline ? colors.online : colors.mutedForeground, fontFamily: "Inter_400Regular" }]}>
             {contact.isOnline ? "online" : "last seen recently"}
           </Text>
         </View>
         <View style={styles.headerActions}>
-          <Pressable style={styles.headerBtn}>
-            <Ionicons name="videocam-outline" size={24} color={colors.foreground} />
+          <Pressable style={styles.headerBtn} onPress={() => router.push("/(tabs)/calls" as any)}>
+            <Ionicons name="videocam-outline" size={22} color={colors.foreground} />
           </Pressable>
-          <Pressable style={styles.headerBtn}>
-            <Ionicons name="call-outline" size={22} color={colors.foreground} />
+          <Pressable style={styles.headerBtn} onPress={() => startCall(contact.id)}>
+            <Ionicons name="call-outline" size={20} color={colors.foreground} />
           </Pressable>
         </View>
       </View>
 
-      <KeyboardAvoidingView
-        style={styles.kav}
-        behavior="padding"
-        keyboardVerticalOffset={0}
-      >
+      <KeyboardAvoidingView style={styles.kav} behavior="padding" keyboardVerticalOffset={0}>
         <FlatList
           ref={flatRef}
           data={reversedMessages}
@@ -97,12 +97,11 @@ export default function ChatScreen() {
           showsVerticalScrollIndicator={false}
           keyboardDismissMode="interactive"
           keyboardShouldPersistTaps="handled"
-          scrollEnabled={!!messages.length}
           ListEmptyComponent={
             <View style={styles.emptyChat}>
-              <Ionicons name="lock-closed-outline" size={24} color={colors.mutedForeground} />
+              <Ionicons name="lock-closed-outline" size={22} color={colors.mutedForeground} />
               <Text style={[styles.emptyChatText, { color: colors.mutedForeground, fontFamily: "Inter_400Regular" }]}>
-                Messages are encrypted
+                Messages are end-to-end encrypted
               </Text>
             </View>
           }
@@ -115,21 +114,15 @@ export default function ChatScreen() {
 
 const styles = StyleSheet.create({
   root: { flex: 1 },
-  header: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingHorizontal: 8,
-    paddingBottom: 10,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    gap: 8,
-  },
+  header: { flexDirection: "row", alignItems: "center", paddingHorizontal: 8, paddingBottom: 10, borderBottomWidth: StyleSheet.hairlineWidth, gap: 8 },
   backBtn: { padding: 4 },
   headerInfo: { flex: 1, gap: 1 },
-  headerName: { fontSize: 16 },
+  headerNameRow: { flexDirection: "row", alignItems: "center", gap: 4 },
+  headerName: { fontSize: 15 },
   headerStatus: { fontSize: 12 },
-  headerActions: { flexDirection: "row", gap: 4 },
+  headerActions: { flexDirection: "row" },
   headerBtn: { padding: 8 },
   kav: { flex: 1 },
-  emptyChat: { flex: 1, alignItems: "center", justifyContent: "center", paddingTop: 100, gap: 8 },
+  emptyChat: { flex: 1, alignItems: "center", paddingTop: 100, gap: 8 },
   emptyChatText: { fontSize: 13 },
 });

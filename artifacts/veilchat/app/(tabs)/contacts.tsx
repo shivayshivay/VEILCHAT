@@ -1,22 +1,26 @@
 import { router } from "expo-router";
 import React, { useState } from "react";
-import { FlatList, Platform, Pressable, StyleSheet, Text, TextInput, View } from "react-native";
+import { FlatList, Platform, Pressable, StyleSheet, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { ContactCard } from "@/components/contacts/ContactCard";
-import { useChat } from "@/context/ChatContext";
+import { VeilInput } from "@/components/ui/VeilInput";
+import { useChatStore } from "@/store/chatStore";
 import { useColors } from "@/hooks/useColors";
+import { useDebounce } from "@/hooks/useDebounce";
+import { Contact } from "@/types/chat";
 
 export default function ContactsScreen() {
   const colors = useColors();
   const insets = useSafeAreaInsets();
-  const { searchContacts } = useChat();
+  const { searchContacts } = useChatStore();
   const [query, setQuery] = useState("");
+  const debouncedQuery = useDebounce(query, 200);
 
-  const results = searchContacts(query);
+  const results = searchContacts(debouncedQuery);
   const topPad = insets.top + (Platform.OS === "web" ? 67 : 0);
 
-  const grouped: Record<string, typeof results> = {};
+  const grouped: Record<string, Contact[]> = {};
   results.forEach((c) => {
     const letter = c.name[0].toUpperCase();
     if (!grouped[letter]) grouped[letter] = [];
@@ -33,21 +37,14 @@ export default function ContactsScreen() {
             <Ionicons name="person-add-outline" size={22} color={colors.primary} />
           </Pressable>
         </View>
-        <View style={[styles.searchBar, { backgroundColor: colors.surface, borderRadius: colors.radius }]}>
-          <Ionicons name="search-outline" size={18} color={colors.mutedForeground} />
-          <TextInput
-            value={query}
-            onChangeText={setQuery}
-            placeholder="Search contacts"
-            placeholderTextColor={colors.mutedForeground}
-            style={[styles.searchInput, { color: colors.foreground, fontFamily: "Inter_400Regular" }]}
-          />
-          {query.length > 0 && (
-            <Pressable onPress={() => setQuery("")}>
-              <Ionicons name="close-circle" size={16} color={colors.mutedForeground} />
-            </Pressable>
-          )}
-        </View>
+        <VeilInput
+          value={query}
+          onChangeText={setQuery}
+          placeholder="Search contacts"
+          leftIcon="search-outline"
+          rightIcon={query.length > 0 ? "close-circle" : undefined}
+          onRightIconPress={() => setQuery("")}
+        />
       </View>
 
       <FlatList
@@ -55,7 +52,6 @@ export default function ContactsScreen() {
         keyExtractor={(item) => item.letter}
         contentContainerStyle={{ paddingBottom: 100 }}
         showsVerticalScrollIndicator={false}
-        scrollEnabled={!!sections.length}
         renderItem={({ item: section }) => (
           <View>
             <View style={[styles.sectionHeader, { borderBottomColor: colors.border }]}>
@@ -92,8 +88,6 @@ const styles = StyleSheet.create({
   titleRow: { flexDirection: "row", justifyContent: "space-between", alignItems: "center" },
   title: { fontSize: 28 },
   headerBtn: { padding: 6 },
-  searchBar: { flexDirection: "row", alignItems: "center", paddingHorizontal: 12, paddingVertical: 10, gap: 8 },
-  searchInput: { flex: 1, fontSize: 15 },
   sectionHeader: { paddingHorizontal: 20, paddingVertical: 6, borderBottomWidth: StyleSheet.hairlineWidth },
   sectionLetter: { fontSize: 13 },
   empty: { alignItems: "center", paddingTop: 80, gap: 12 },

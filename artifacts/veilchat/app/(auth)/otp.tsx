@@ -4,15 +4,14 @@ import React, { useRef, useState } from "react";
 import { KeyboardAvoidingView, Platform, Pressable, StyleSheet, Text, TextInput, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { VeilButton } from "@/components/ui/VeilButton";
-import { useAuth } from "@/context/AuthContext";
+import { useAuthStore } from "@/store/authStore";
 import { useColors } from "@/hooks/useColors";
 
 export default function OtpScreen() {
   const colors = useColors();
   const insets = useSafeAreaInsets();
-  const { verifyOtp, pendingPhone } = useAuth();
+  const { verifyOtp, pendingPhone, isLoading, error } = useAuthStore();
   const [otp, setOtp] = useState(["", "", "", "", "", ""]);
-  const [loading, setLoading] = useState(false);
   const refs = useRef<(TextInput | null)[]>([]);
 
   const handleChange = (val: string, idx: number) => {
@@ -27,10 +26,8 @@ export default function OtpScreen() {
   const handleVerify = async () => {
     const code = otp.join("");
     if (code.length < 6) return;
-    setLoading(true);
-    await verifyOtp(code);
-    setLoading(false);
-    router.push("/(auth)/profile-setup");
+    const ok = await verifyOtp(code);
+    if (ok) router.push("/(auth)/profile-setup");
   };
 
   const topPad = insets.top + (Platform.OS === "web" ? 67 : 0);
@@ -39,12 +36,7 @@ export default function OtpScreen() {
 
   return (
     <View style={[styles.root, { backgroundColor: colors.background }]}>
-      <LinearGradient
-        colors={["#00F5D411", "#0A0A0A"]}
-        style={StyleSheet.absoluteFill}
-        start={{ x: 0.5, y: 0 }}
-        end={{ x: 0.5, y: 0.4 }}
-      />
+      <LinearGradient colors={[colors.primary + "11", colors.background]} style={StyleSheet.absoluteFill} start={{ x: 0.5, y: 0 }} end={{ x: 0.5, y: 0.4 }} />
       <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} style={styles.kav}>
         <View style={[styles.inner, { paddingTop: topPad + 40, paddingBottom: botPad + 32, paddingHorizontal: 28 }]}>
           <Pressable onPress={() => router.back()} style={styles.back}>
@@ -80,11 +72,16 @@ export default function OtpScreen() {
                 />
               ))}
             </View>
+            {error && (
+              <Text style={[styles.error, { color: colors.destructive, fontFamily: "Inter_400Regular" }]}>
+                {error}
+              </Text>
+            )}
             <Text style={[styles.hint, { color: colors.mutedForeground, fontFamily: "Inter_400Regular" }]}>
-              Use code <Text style={{ color: colors.primary }}>123456</Text> for demo
+              Demo code: <Text style={{ color: colors.primary }}>123456</Text>
             </Text>
           </View>
-          <VeilButton label="Verify" onPress={handleVerify} loading={loading} disabled={!isFull} fullWidth />
+          <VeilButton label="Verify" onPress={handleVerify} loading={isLoading} disabled={!isFull} fullWidth />
         </View>
       </KeyboardAvoidingView>
     </View>
@@ -101,11 +98,7 @@ const styles = StyleSheet.create({
   title: { fontSize: 26 },
   sub: { fontSize: 15 },
   digits: { flexDirection: "row", gap: 10, marginTop: 16 },
-  digit: {
-    flex: 1,
-    height: 58,
-    fontSize: 24,
-    borderWidth: 1.5,
-  },
+  digit: { flex: 1, height: 58, fontSize: 24, borderWidth: 1.5 },
+  error: { fontSize: 13 },
   hint: { fontSize: 13 },
 });

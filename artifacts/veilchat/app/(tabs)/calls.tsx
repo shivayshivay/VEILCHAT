@@ -1,49 +1,22 @@
-import React, { useState } from "react";
+import React from "react";
 import { FlatList, Modal, Platform, Pressable, StyleSheet, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import { Avatar } from "@/components/ui/Avatar";
-import { CallItem, CallRecord } from "@/components/calls/CallItem";
-import { useChat } from "@/context/ChatContext";
+import { CallItem } from "@/components/calls/CallItem";
+import { useChatStore } from "@/store/chatStore";
+import { useUiStore } from "@/store/uiStore";
 import { useColors } from "@/hooks/useColors";
 
 export default function CallsScreen() {
   const colors = useColors();
   const insets = useSafeAreaInsets();
-  const { contacts } = useChat();
-  const [activeCall, setActiveCall] = useState<string | null>(null);
-  const [callTimer, setCallTimer] = useState(0);
-  const [timerRef, setTimerRef] = useState<ReturnType<typeof setInterval> | null>(null);
+  const { callRecords, contacts } = useChatStore();
+  const { activeCallContactId, callTimer, startCall, endCall } = useUiStore();
 
   const topPad = insets.top + (Platform.OS === "web" ? 67 : 0);
-
-  const callTypes: Array<"incoming" | "outgoing" | "missed"> = ["outgoing", "incoming", "missed", "outgoing", "incoming"];
-
-  const records: CallRecord[] = contacts.slice(0, 5).map((c, i) => ({
-    id: "call_" + c.id,
-    contact: c,
-    type: callTypes[i % callTypes.length],
-    isVideo: i % 3 === 0,
-    timestamp: Date.now() - (i + 1) * 3600000,
-    duration: i % 3 === 2 ? 0 : 60 + i * 45,
-  }));
-
-  const activeContact = contacts.find((c) => c.id === activeCall);
-
-  const handleCall = (contactId: string) => {
-    setActiveCall(contactId);
-    setCallTimer(0);
-    const ref = setInterval(() => setCallTimer((t) => t + 1), 1000);
-    setTimerRef(ref);
-  };
-
-  const handleEndCall = () => {
-    if (timerRef) clearInterval(timerRef);
-    setTimerRef(null);
-    setActiveCall(null);
-    setCallTimer(0);
-  };
+  const activeContact = contacts.find((c) => c.id === activeCallContactId);
 
   const formatTimer = (s: number) => {
     const m = Math.floor(s / 60).toString().padStart(2, "0");
@@ -61,17 +34,24 @@ export default function CallsScreen() {
       </View>
 
       <FlatList
-        data={records}
+        data={callRecords}
         keyExtractor={(item) => item.id}
         contentContainerStyle={{ paddingBottom: 100 }}
         showsVerticalScrollIndicator={false}
-        scrollEnabled={records.length > 0}
         renderItem={({ item }) => (
-          <CallItem record={item} onCall={() => handleCall(item.contact.id)} />
+          <CallItem record={item} onCall={() => startCall(item.contact.id)} />
         )}
+        ListEmptyComponent={
+          <View style={styles.empty}>
+            <Ionicons name="call-outline" size={48} color={colors.mutedForeground} />
+            <Text style={[styles.emptyText, { color: colors.mutedForeground, fontFamily: "Inter_400Regular" }]}>
+              No recent calls
+            </Text>
+          </View>
+        }
       />
 
-      <Modal visible={!!activeCall} animationType="slide" statusBarTranslucent>
+      <Modal visible={!!activeCallContactId} animationType="slide" statusBarTranslucent>
         <LinearGradient colors={["#0A0A0A", "#111827", "#0A0A0A"]} style={styles.callScreen}>
           <View style={[styles.callTop, { paddingTop: insets.top + 40 }]}>
             <Text style={[styles.callLabel, { color: colors.mutedForeground, fontFamily: "Inter_400Regular" }]}>
@@ -88,21 +68,31 @@ export default function CallsScreen() {
             </Text>
           </View>
           <View style={[styles.callControls, { paddingBottom: insets.bottom + 40 }]}>
-            <Pressable style={[styles.callCtrlBtn, { backgroundColor: "#1F2937" }]}>
-              <Ionicons name="mic-off-outline" size={26} color="#fff" />
-            </Pressable>
-            <Pressable style={[styles.callCtrlBtn, { backgroundColor: "#1F2937" }]}>
-              <Ionicons name="volume-high-outline" size={26} color="#fff" />
-            </Pressable>
-            <Pressable style={[styles.callCtrlBtn, { backgroundColor: "#1F2937" }]}>
-              <Ionicons name="videocam-outline" size={26} color="#fff" />
-            </Pressable>
-            <Pressable
-              onPress={handleEndCall}
-              style={[styles.callCtrlBtn, { backgroundColor: colors.destructive, width: 68, height: 68, borderRadius: 34 }]}
-            >
-              <Ionicons name="call" size={28} color="#fff" style={{ transform: [{ rotate: "135deg" }] }} />
-            </Pressable>
+            {[
+              { icon: "mic-off-outline", label: "Mute" },
+              { icon: "volume-high-outline", label: "Speaker" },
+              { icon: "videocam-outline", label: "Video" },
+            ].map((btn) => (
+              <View key={btn.icon} style={styles.callCtrlWrap}>
+                <Pressable style={[styles.callCtrlBtn, { backgroundColor: colors.secondary }]}>
+                  <Ionicons name={btn.icon as any} size={24} color="#fff" />
+                </Pressable>
+                <Text style={[styles.callCtrlLabel, { color: colors.mutedForeground, fontFamily: "Inter_400Regular" }]}>
+                  {btn.label}
+                </Text>
+              </View>
+            ))}
+            <View style={styles.callCtrlWrap}>
+              <Pressable
+                onPress={endCall}
+                style={[styles.callCtrlBtn, { backgroundColor: colors.destructive, width: 68, height: 68, borderRadius: 34 }]}
+              >
+                <Ionicons name="call" size={28} color="#fff" style={{ transform: [{ rotate: "135deg" }] }} />
+              </Pressable>
+              <Text style={[styles.callCtrlLabel, { color: colors.mutedForeground, fontFamily: "Inter_400Regular" }]}>
+                End
+              </Text>
+            </View>
           </View>
         </LinearGradient>
       </Modal>
@@ -115,11 +105,15 @@ const styles = StyleSheet.create({
   header: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", paddingHorizontal: 20, paddingBottom: 16 },
   title: { fontSize: 28 },
   headerBtn: { padding: 6 },
+  empty: { alignItems: "center", paddingTop: 80, gap: 12 },
+  emptyText: { fontSize: 15 },
   callScreen: { flex: 1, justifyContent: "space-between" },
   callTop: { alignItems: "center", gap: 16 },
-  callLabel: { fontSize: 14, letterSpacing: 1 },
+  callLabel: { fontSize: 12, letterSpacing: 1.5, textTransform: "uppercase" },
   callName: { fontSize: 28, marginTop: 8 },
   callTimer: { fontSize: 18 },
-  callControls: { flexDirection: "row", justifyContent: "center", alignItems: "center", gap: 20, paddingHorizontal: 32 },
+  callControls: { flexDirection: "row", justifyContent: "center", alignItems: "flex-start", gap: 20, paddingHorizontal: 24 },
+  callCtrlWrap: { alignItems: "center", gap: 8 },
   callCtrlBtn: { width: 60, height: 60, borderRadius: 30, alignItems: "center", justifyContent: "center" },
+  callCtrlLabel: { fontSize: 11 },
 });

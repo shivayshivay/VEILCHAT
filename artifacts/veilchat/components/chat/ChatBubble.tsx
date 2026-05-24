@@ -2,7 +2,7 @@ import React from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useColors } from "@/hooks/useColors";
-import { Message } from "@/context/ChatContext";
+import { Message } from "@/types/chat";
 
 interface Props {
   message: Message;

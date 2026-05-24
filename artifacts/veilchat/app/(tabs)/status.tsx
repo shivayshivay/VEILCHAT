@@ -4,7 +4,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import { Avatar } from "@/components/ui/Avatar";
-import { useChat } from "@/context/ChatContext";
+import { useChatStore } from "@/store/chatStore";
 import { useColors } from "@/hooks/useColors";
 
 const MY_STATUS = {
@@ -28,7 +28,7 @@ const STATUS_TEXTS = [
 export default function StatusScreen() {
   const colors = useColors();
   const insets = useSafeAreaInsets();
-  const { contacts } = useChat();
+  const { contacts } = useChatStore();
   const [viewing, setViewing] = useState<string | null>(null);
 
   const topPad = insets.top + (Platform.OS === "web" ? 67 : 0);

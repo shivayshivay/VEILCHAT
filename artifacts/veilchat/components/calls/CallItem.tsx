@@ -3,18 +3,7 @@ import { Pressable, StyleSheet, Text, View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { Avatar } from "@/components/ui/Avatar";
 import { useColors } from "@/hooks/useColors";
-import { Contact } from "@/context/ChatContext";
-
-export type CallType = "incoming" | "outgoing" | "missed";
-
-export interface CallRecord {
-  id: string;
-  contact: Contact;
-  type: CallType;
-  isVideo: boolean;
-  timestamp: number;
-  duration: number;
-}
+import { CallRecord } from "@/types/chat";
 
 function formatTime(ts: number): string {
   const diff = Date.now() - ts;
@@ -44,7 +33,12 @@ export function CallItem({ record, onCall }: Props) {
   const colors = useColors();
   const { contact, type, isVideo, timestamp, duration } = record;
 
-  const iconName = type === "incoming" ? "call-outline" : type === "outgoing" ? "arrow-up-circle-outline" : "arrow-down-circle-outline";
+  const iconName =
+    type === "incoming"
+      ? "call-outline"
+      : type === "outgoing"
+      ? "arrow-up-circle-outline"
+      : "arrow-down-circle-outline";
   const iconColor = type === "missed" ? colors.destructive : colors.primary;
 
   return (
@@ -79,13 +73,7 @@ export function CallItem({ record, onCall }: Props) {
 }
 
 const styles = StyleSheet.create({
-  row: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingHorizontal: 20,
-    paddingVertical: 12,
-    gap: 14,
-  },
+  row: { flexDirection: "row", alignItems: "center", paddingHorizontal: 20, paddingVertical: 12, gap: 14 },
   mid: { flex: 1, gap: 3 },
   subRow: { flexDirection: "row", alignItems: "center", gap: 4 },
   name: { fontSize: 15 },

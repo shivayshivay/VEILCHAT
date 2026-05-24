@@ -4,7 +4,8 @@ import { Platform, Pressable, ScrollView, StyleSheet, Switch, Text, View } from 
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { Avatar } from "@/components/ui/Avatar";
-import { useAuth } from "@/context/AuthContext";
+import { VeilCard } from "@/components/ui/VeilCard";
+import { useAuthStore } from "@/store/authStore";
 import { useColors } from "@/hooks/useColors";
 
 interface RowProps {
@@ -16,61 +17,53 @@ interface RowProps {
   onToggle?: (v: boolean) => void;
   danger?: boolean;
   onPress?: () => void;
+  isLast?: boolean;
 }
 
-function SettingRow({ icon, label, value, toggle, toggleValue, onToggle, danger, onPress }: RowProps) {
+function SettingRow({ icon, label, value, toggle, toggleValue, onToggle, danger, onPress, isLast }: RowProps) {
   const colors = useColors();
   return (
-    <Pressable
-      onPress={onPress}
-      style={({ pressed }) => [styles.row, { opacity: pressed && onPress ? 0.75 : 1 }]}
-    >
-      <View style={[styles.iconWrap, { backgroundColor: danger ? colors.destructive + "22" : colors.secondary }]}>
-        <Ionicons name={icon as any} size={18} color={danger ? colors.destructive : colors.primary} />
-      </View>
-      <Text style={[styles.rowLabel, { color: danger ? colors.destructive : colors.foreground, fontFamily: "Inter_400Regular", flex: 1 }]}>
-        {label}
-      </Text>
-      {value && (
-        <Text style={[styles.rowValue, { color: colors.mutedForeground, fontFamily: "Inter_400Regular" }]}>{value}</Text>
-      )}
-      {toggle && (
-        <Switch
-          value={toggleValue}
-          onValueChange={onToggle}
-          trackColor={{ false: colors.border, true: colors.primary + "80" }}
-          thumbColor={toggleValue ? colors.primary : colors.mutedForeground}
-        />
-      )}
-      {!toggle && onPress && (
-        <Ionicons name="chevron-forward" size={16} color={colors.mutedForeground} />
-      )}
-    </Pressable>
-  );
-}
-
-function Section({ title, children }: { title: string; children: React.ReactNode }) {
-  const colors = useColors();
-  return (
-    <View style={styles.section}>
-      <Text style={[styles.sectionTitle, { color: colors.mutedForeground, fontFamily: "Inter_500Medium" }]}>
-        {title}
-      </Text>
-      <View style={[styles.sectionCard, { backgroundColor: colors.card, borderRadius: colors.radius }]}>
-        {children}
-      </View>
-    </View>
+    <>
+      <Pressable
+        onPress={onPress}
+        style={({ pressed }) => [styles.row, { opacity: pressed && onPress ? 0.7 : 1 }]}
+      >
+        <View style={[styles.iconWrap, { backgroundColor: danger ? colors.destructive + "22" : colors.secondary }]}>
+          <Ionicons name={icon as any} size={17} color={danger ? colors.destructive : colors.primary} />
+        </View>
+        <Text style={[styles.rowLabel, { color: danger ? colors.destructive : colors.foreground, fontFamily: "Inter_400Regular", flex: 1 }]}>
+          {label}
+        </Text>
+        {value && <Text style={[styles.rowValue, { color: colors.mutedForeground, fontFamily: "Inter_400Regular" }]}>{value}</Text>}
+        {toggle && (
+          <Switch
+            value={toggleValue}
+            onValueChange={onToggle}
+            trackColor={{ false: colors.border, true: colors.primary + "80" }}
+            thumbColor={toggleValue ? colors.primary : colors.mutedForeground}
+          />
+        )}
+        {!toggle && onPress && <Ionicons name="chevron-forward" size={15} color={colors.mutedForeground} />}
+      </Pressable>
+      {!isLast && <View style={[styles.divider, { backgroundColor: colors.border, marginLeft: 62 }]} />}
+    </>
   );
 }
 
 export default function SettingsScreen() {
   const colors = useColors();
   const insets = useSafeAreaInsets();
-  const { user, logout } = useAuth();
+  const { user, logout } = useAuthStore();
   const [notifs, setNotifs] = React.useState(true);
   const [preview, setPreview] = React.useState(true);
+  const [readReceipts, setReadReceipts] = React.useState(true);
 
   const topPad = insets.top + (Platform.OS === "web" ? 67 : 0);
+
+  const handleLogout = async () => {
+    await logout();
+    router.replace("/(auth)/login");
+  };
 
   return (
     <ScrollView
@@ -83,8 +76,8 @@ export default function SettingsScreen() {
       </View>
 
       {user && (
-        <Pressable style={[styles.profileCard, { backgroundColor: colors.card, borderRadius: colors.radius }]}>
-          <Avatar name={user.name} color={user.avatarColor} size={60} />
+        <VeilCard style={styles.profileCard} padding={16}>
+          <Avatar name={user.name} color={user.avatarColor} size={56} />
           <View style={styles.profileInfo}>
             <Text style={[styles.profileName, { color: colors.foreground, fontFamily: "Inter_700Bold" }]}>
               {user.name}
@@ -93,39 +86,62 @@ export default function SettingsScreen() {
               {user.bio || user.phone}
             </Text>
           </View>
-          <Ionicons name="chevron-forward" size={18} color={colors.mutedForeground} />
-        </Pressable>
+          <Ionicons name="chevron-forward" size={16} color={colors.mutedForeground} />
+        </VeilCard>
       )}
 
-      <Section title="Notifications">
-        <SettingRow icon="notifications-outline" label="Push notifications" toggle toggleValue={notifs} onToggle={setNotifs} />
-        <View style={[styles.divider, { backgroundColor: colors.border }]} />
-        <SettingRow icon="eye-outline" label="Message preview" toggle toggleValue={preview} onToggle={setPreview} />
-      </Section>
-
-      <Section title="Privacy">
-        <SettingRow icon="lock-closed-outline" label="Last seen" value="Everyone" onPress={() => {}} />
-        <View style={[styles.divider, { backgroundColor: colors.border }]} />
-        <SettingRow icon="image-outline" label="Profile photo" value="Contacts" onPress={() => {}} />
-        <View style={[styles.divider, { backgroundColor: colors.border }]} />
-        <SettingRow icon="checkmark-done-outline" label="Read receipts" toggle toggleValue={true} onToggle={() => {}} />
-      </Section>
-
-      <Section title="Appearance">
-        <SettingRow icon="phone-portrait-outline" label="Theme" value="Dark" onPress={() => {}} />
-        <View style={[styles.divider, { backgroundColor: colors.border }]} />
-        <SettingRow icon="text-outline" label="Chat font size" value="Medium" onPress={() => {}} />
-      </Section>
-
-      <Section title="Connected Devices">
-        <SettingRow icon="laptop-outline" label="Linked devices" value="0 devices" onPress={() => {}} />
-      </Section>
-
-      <Section title="Account">
-        <SettingRow icon="information-circle-outline" label="App version" value="1.0.0" />
-        <View style={[styles.divider, { backgroundColor: colors.border }]} />
-        <SettingRow icon="log-out-outline" label="Log out" danger onPress={logout} />
-      </Section>
+      {[
+        {
+          title: "Notifications",
+          rows: [
+            { icon: "notifications-outline", label: "Push notifications", toggle: true, toggleValue: notifs, onToggle: setNotifs },
+            { icon: "eye-outline", label: "Message preview", toggle: true, toggleValue: preview, onToggle: setPreview },
+          ],
+        },
+        {
+          title: "Privacy",
+          rows: [
+            { icon: "lock-closed-outline", label: "Last seen", value: "Everyone", onPress: () => {} },
+            { icon: "image-outline", label: "Profile photo", value: "Contacts", onPress: () => {} },
+            { icon: "checkmark-done-outline", label: "Read receipts", toggle: true, toggleValue: readReceipts, onToggle: setReadReceipts },
+          ],
+        },
+        {
+          title: "Appearance",
+          rows: [
+            { icon: "phone-portrait-outline", label: "Theme", value: "Dark", onPress: () => {} },
+            { icon: "text-outline", label: "Chat font size", value: "Medium", onPress: () => {} },
+          ],
+        },
+        {
+          title: "Connected Devices",
+          rows: [
+            { icon: "laptop-outline", label: "Linked devices", value: "0 devices", onPress: () => {} },
+          ],
+        },
+        {
+          title: "Account",
+          rows: [
+            { icon: "information-circle-outline", label: "App version", value: "1.0.0" },
+            { icon: "log-out-outline", label: "Log out", danger: true, onPress: handleLogout },
+          ],
+        },
+      ].map((section) => (
+        <View key={section.title} style={styles.section}>
+          <Text style={[styles.sectionTitle, { color: colors.mutedForeground, fontFamily: "Inter_500Medium" }]}>
+            {section.title}
+          </Text>
+          <VeilCard padding={0}>
+            {section.rows.map((row, i) => (
+              <SettingRow
+                key={row.label}
+                {...row}
+                isLast={i === section.rows.length - 1}
+              />
+            ))}
+          </VeilCard>
+        </View>
+      ))}
     </ScrollView>
   );
 }
@@ -134,16 +150,15 @@ const styles = StyleSheet.create({
   root: { flex: 1 },
   header: { paddingHorizontal: 20, paddingBottom: 16 },
   title: { fontSize: 28 },
-  profileCard: { flexDirection: "row", alignItems: "center", marginHorizontal: 20, marginBottom: 24, padding: 16, gap: 14 },
+  profileCard: { flexDirection: "row", alignItems: "center", marginHorizontal: 20, marginBottom: 24, gap: 14 },
   profileInfo: { flex: 1, gap: 3 },
-  profileName: { fontSize: 17 },
-  profileSub: { fontSize: 14 },
+  profileName: { fontSize: 16 },
+  profileSub: { fontSize: 13 },
   section: { marginBottom: 24, paddingHorizontal: 20, gap: 8 },
-  sectionTitle: { fontSize: 12, letterSpacing: 1, textTransform: "uppercase", marginLeft: 4 },
-  sectionCard: { overflow: "hidden" },
-  row: { flexDirection: "row", alignItems: "center", paddingHorizontal: 16, paddingVertical: 13, gap: 14 },
-  iconWrap: { width: 32, height: 32, borderRadius: 8, alignItems: "center", justifyContent: "center" },
+  sectionTitle: { fontSize: 11, letterSpacing: 1.2, textTransform: "uppercase", marginLeft: 4 },
+  row: { flexDirection: "row", alignItems: "center", paddingHorizontal: 16, paddingVertical: 13, gap: 12 },
+  iconWrap: { width: 30, height: 30, borderRadius: 7, alignItems: "center", justifyContent: "center" },
   rowLabel: { fontSize: 15 },
-  rowValue: { fontSize: 14 },
-  divider: { height: StyleSheet.hairlineWidth, marginLeft: 62 },
+  rowValue: { fontSize: 13 },
+  divider: { height: StyleSheet.hairlineWidth },
 });
