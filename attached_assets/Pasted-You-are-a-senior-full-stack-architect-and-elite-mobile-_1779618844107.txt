@@ -1,0 +1,322 @@
+You are a senior full-stack architect and elite mobile app developer.
+
+Build a production-ready secure messaging application called “VEILCHAT”.
+
+IMPORTANT:
+This app should NOT look like a hacker/spying tool.
+It should feel:
+- premium
+- modern
+- minimal
+- futuristic
+- trustworthy
+like a next-generation WhatsApp + Signal + Nothing OS hybrid.
+
+==================================================
+CORE TECH STACK
+==================================================
+
+FRONTEND:
+- Flutter
+- Riverpod state management
+- GoRouter navigation
+- Hive local database
+- flutter_webrtc
+- Flutter Animate
+
+BACKEND:
+- Node.js
+- Express.js
+- Socket.IO
+- Firebase Admin SDK
+- JWT authentication
+- libsodium encryption
+- Multer uploads
+
+DATABASE:
+- Supabase PostgreSQL
+
+CACHE:
+- Upstash Redis
+
+STORAGE:
+- Cloudinary
+
+AUTH:
+- Firebase Authentication
+- OTP login
+- Email verification
+
+==================================================
+MAIN APP STRUCTURE
+==================================================
+
+BOTTOM NAVIGATION:
+1. Chats
+2. Status
+3. Calls
+4. Contacts
+5. Settings
+
+==================================================
+PHASE 1 FEATURES (ONLY BUILD THESE FIRST)
+==================================================
+
+IMPORTANT:
+Do NOT implement advanced privacy features initially.
+The first version should feel like a beautiful modern messenger.
+
+Build ONLY:
+- authentication
+- chat UI
+- realtime messaging
+- calls UI
+- contacts
+- status system
+- settings basics
+
+HIDE advanced features for future updates.
+
+==================================================
+AUTHENTICATION SYSTEM
+==================================================
+
+FEATURES:
+- phone OTP login
+- email verification
+- biometric login support
+- secure JWT session
+- Firebase Auth integration
+
+SCREENS:
+- splash screen
+- login/signup
+- OTP verification
+- profile setup
+
+UI STYLE:
+- cyber minimal
+- matte black backgrounds
+- neon cyan accents
+- soft glassmorphism
+- premium animations
+
+==================================================
+REALTIME CHAT SYSTEM
+==================================================
+
+FEATURES:
+- one-to-one chat
+- realtime messaging
+- typing indicators
+- delivery status
+- read receipts
+- reactions
+- replies
+- media sharing
+- voice notes
+- offline sync queue
+
+IMPLEMENT:
+- Socket.IO realtime architecture
+- encrypted local message cache
+- optimistic UI updates
+
+==================================================
+CHAT SCREEN UI
+==================================================
+
+DESIGN:
+- futuristic WhatsApp-like usability
+- rounded chat bubbles
+- premium spacing
+- smooth animations
+- glowing active indicators
+- floating message input
+- modern voice note waveform
+
+MESSAGE INPUT:
+- attachment button
+- voice note
+- emoji support
+- expandable tools menu
+
+==================================================
+CALLS SYSTEM
+==================================================
+
+PREPARE:
+- voice call UI
+- video call UI
+- WebRTC-ready architecture
+
+FEATURES:
+- floating controls
+- mute
+- speaker
+- camera toggle
+- blur background mode
+- animated waveform
+
+==================================================
+STATUS SYSTEM
+==================================================
+
+FEATURES:
+- image/video statuses
+- story viewer
+- fullscreen transitions
+- audience controls
+- modern ring indicators
+
+==================================================
+CONTACTS SCREEN
+==================================================
+
+FEATURES:
+- searchable contacts
+- secure verification badges
+- QR sharing
+- favorite contacts
+- clean cyber-minimal cards
+
+==================================================
+SETTINGS SCREEN
+==================================================
+
+ONLY BASIC SETTINGS FOR NOW:
+- profile
+- notifications
+- theme
+- privacy basics
+- connected devices
+
+DO NOT show:
+- panic mode
+- vault
+- ghost mode
+- hidden systems
+- steganography
+
+==================================================
+IMPORTANT FUTURE ARCHITECTURE PREPARATION
+==================================================
+
+Even though advanced privacy features are hidden for now,
+prepare scalable architecture for future modules:
+
+FUTURE MODULES:
+- hidden vault
+- panic mode
+- steganography messaging
+- adaptive privacy
+- ghost mode
+- encrypted hidden images
+
+Create modular architecture so these can be added later.
+
+==================================================
+DESIGN SYSTEM
+==================================================
+
+COLORS:
+Background: #0A0A0A
+Secondary: #111827
+Accent: #00F5D4
+Text: #E5E7EB
+
+TYPOGRAPHY:
+- Inter
+- SF Pro style spacing
+- modern clean hierarchy
+
+STYLE:
+- premium
+- cinematic
+- futuristic
+- smooth
+- minimal
+- elegant
+
+==================================================
+PROJECT STRUCTURE
+==================================================
+
+Use clean scalable folders:
+
+/client
+/screens
+/widgets
+/services
+/providers
+/models
+/animations
+
+/server
+/routes
+/controllers
+/sockets
+/middleware
+/services
+
+/shared
+/constants
+/utils
+
+==================================================
+IMPORTANT ENGINEERING RULES
+==================================================
+
+- clean architecture
+- reusable widgets
+- scalable state management
+- optimized performance
+- production-ready code
+- modular backend
+- proper error handling
+- secure auth flow
+- responsive layouts
+- smooth animations
+- avoid duplicated code
+
+==================================================
+UI/UX GOAL
+==================================================
+
+The app should feel:
+- elite
+- luxurious
+- stealthy
+- calming
+- futuristic
+- emotionally premium
+
+NOT:
+- hacker-style
+- suspicious
+- overloaded
+- technical
+
+==================================================
+DELIVERABLES
+==================================================
+
+Generate:
+1. Flutter frontend
+2. Node.js backend
+3. Socket.IO integration
+4. Supabase schema
+5. Firebase auth setup
+6. Cloudinary integration
+7. Responsive mobile UI
+8. Clean folder architecture
+9. Reusable components
+10. Initial API structure
+
+Start by generating:
+- project architecture
+- dependencies
+- folder structure
+- authentication flow
+- navigation system
+- home/chat UI
