@@ -7,5 +7,5 @@ export default function RootIndex() {
   const isLoading = useAuthStore((s) => s.isLoading);
   if (isLoading) return <View style={{ flex: 1, backgroundColor: "#0A0A0A" }} />;
   if (user) return <Redirect href="/(tabs)" />;
-  return <Redirect href="/(auth)/login" />;
+  return <Redirect href="/(auth)/splash" />;
 }

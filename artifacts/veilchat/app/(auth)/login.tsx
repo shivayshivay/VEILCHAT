@@ -1,88 +1,184 @@
 import { LinearGradient } from "expo-linear-gradient";
 import { router } from "expo-router";
-import React, { useState } from "react";
-import { KeyboardAvoidingView, Platform, StyleSheet, Text, View } from "react-native";
+import React from "react";
+import { Platform, Pressable, StyleSheet, Text, View } from "react-native";
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withSpring,
+  withDelay,
+  withTiming,
+} from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { VeilButton } from "@/components/ui/VeilButton";
-import { VeilInput } from "@/components/ui/VeilInput";
-import { useAuthStore } from "@/store/authStore";
-import { useColors } from "@/hooks/useColors";
+import { Ionicons } from "@expo/vector-icons";
 
 export default function LoginScreen() {
-  const colors = useColors();
   const insets = useSafeAreaInsets();
-  const { login, isLoading, error } = useAuthStore();
-  const [phone, setPhone] = useState("");
-
-  const handleContinue = async () => {
-    if (phone.trim().length < 7) return;
-    await login(phone.trim());
-    router.push("/(auth)/otp");
-  };
-
   const topPad = insets.top + (Platform.OS === "web" ? 67 : 0);
-  const botPad = Math.max(insets.bottom, Platform.OS === "web" ? 34 : 0);
+  const botPad = Math.max(insets.bottom, Platform.OS === "web" ? 34 : 24);
+
+  const logoOpacity = useSharedValue(0);
+  const logoY = useSharedValue(-20);
+  const card1Opacity = useSharedValue(0);
+  const card1Y = useSharedValue(30);
+  const card2Opacity = useSharedValue(0);
+  const card2Y = useSharedValue(30);
+
+  React.useEffect(() => {
+    logoOpacity.value = withDelay(100, withTiming(1, { duration: 500 }));
+    logoY.value = withDelay(100, withSpring(0, { damping: 14 }));
+    card1Opacity.value = withDelay(300, withTiming(1, { duration: 400 }));
+    card1Y.value = withDelay(300, withSpring(0, { damping: 14 }));
+    card2Opacity.value = withDelay(450, withTiming(1, { duration: 400 }));
+    card2Y.value = withDelay(450, withSpring(0, { damping: 14 }));
+  }, []);
+
+  const logoAnimStyle = useAnimatedStyle(() => ({
+    opacity: logoOpacity.value,
+    transform: [{ translateY: logoY.value }],
+  }));
+  const card1AnimStyle = useAnimatedStyle(() => ({
+    opacity: card1Opacity.value,
+    transform: [{ translateY: card1Y.value }],
+  }));
+  const card2AnimStyle = useAnimatedStyle(() => ({
+    opacity: card2Opacity.value,
+    transform: [{ translateY: card2Y.value }],
+  }));
 
   return (
-    <View style={[styles.root, { backgroundColor: colors.background }]}>
+    <View style={[styles.root, { paddingTop: topPad }]}>
       <LinearGradient
-        colors={[colors.primary + "22", colors.background]}
+        colors={["#00F5D418", "#0A0A0A"]}
         style={StyleSheet.absoluteFill}
         start={{ x: 0.5, y: 0 }}
-        end={{ x: 0.5, y: 0.5 }}
+        end={{ x: 0.5, y: 0.45 }}
       />
-      <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} style={styles.kav}>
-        <View style={[styles.inner, { paddingTop: topPad + 60, paddingBottom: botPad + 32, paddingHorizontal: 32 }]}>
-          <View style={styles.hero}>
-            <View style={[styles.logoRing, { borderColor: colors.primary + "44" }]}>
-              <View style={[styles.logoDot, { backgroundColor: colors.primary }]} />
-            </View>
-            <Text style={[styles.brand, { color: colors.foreground, fontFamily: "Inter_700Bold" }]}>
-              VEILCHAT
-            </Text>
-            <Text style={[styles.tagline, { color: colors.mutedForeground, fontFamily: "Inter_400Regular" }]}>
-              Private. Secure. Always.
-            </Text>
-          </View>
-          <View style={styles.form}>
-            <VeilInput
-              label="Phone number"
-              value={phone}
-              onChangeText={setPhone}
-              placeholder="+1 555 000 0000"
-              keyboardType="phone-pad"
-              leftIcon="call-outline"
-              hint="We'll send a verification code"
-              error={error ?? undefined}
-              returnKeyType="done"
-              onSubmitEditing={handleContinue}
-            />
-          </View>
-          <VeilButton
-            label="Continue"
-            onPress={handleContinue}
-            loading={isLoading}
-            disabled={phone.trim().length < 7}
-            fullWidth
-          />
-          <Text style={[styles.terms, { color: colors.mutedForeground, fontFamily: "Inter_400Regular" }]}>
-            By continuing, you agree to our Terms & Privacy Policy
-          </Text>
+
+      <Animated.View style={[styles.hero, logoAnimStyle]}>
+        <View style={styles.logoRing}>
+          <View style={styles.logoDot} />
         </View>
-      </KeyboardAvoidingView>
+        <Text style={styles.brand}>VEILCHAT</Text>
+        <Text style={styles.tagline}>The most secure way to connect</Text>
+      </Animated.View>
+
+      <View style={[styles.actions, { paddingBottom: botPad }]}>
+        <Animated.View style={card1AnimStyle}>
+          <Pressable
+            style={({ pressed }) => [styles.primaryBtn, pressed && styles.pressed]}
+            onPress={() => router.push("/(auth)/phone")}
+          >
+            <View style={styles.btnIcon}>
+              <Ionicons name="call" size={20} color="#0A0A0A" />
+            </View>
+            <Text style={styles.primaryBtnText}>Continue with Phone</Text>
+            <Ionicons name="arrow-forward" size={18} color="#0A0A0A" />
+          </Pressable>
+        </Animated.View>
+
+        <View style={styles.divider}>
+          <View style={styles.dividerLine} />
+          <Text style={styles.dividerText}>or</Text>
+          <View style={styles.dividerLine} />
+        </View>
+
+        <Animated.View style={card2AnimStyle}>
+          <Pressable
+            style={({ pressed }) => [styles.secondaryBtn, pressed && styles.pressed]}
+            onPress={() => router.push("/(auth)/email-login")}
+          >
+            <View style={[styles.btnIcon, styles.btnIconOutline]}>
+              <Ionicons name="mail-outline" size={20} color="#00F5D4" />
+            </View>
+            <Text style={styles.secondaryBtnText}>Continue with Email</Text>
+            <Ionicons name="arrow-forward" size={18} color="#6B7280" />
+          </Pressable>
+        </Animated.View>
+
+        <Text style={styles.terms}>
+          By continuing, you agree to our{" "}
+          <Text style={styles.termsLink}>Terms of Service</Text> and{" "}
+          <Text style={styles.termsLink}>Privacy Policy</Text>
+        </Text>
+      </View>
     </View>
   );
 }
 
+const CYAN = "#00F5D4";
+
 const styles = StyleSheet.create({
-  root: { flex: 1 },
-  kav: { flex: 1 },
-  inner: { flex: 1, justifyContent: "space-between" },
-  hero: { alignItems: "center", gap: 12 },
-  logoRing: { width: 72, height: 72, borderRadius: 36, borderWidth: 2, alignItems: "center", justifyContent: "center" },
-  logoDot: { width: 28, height: 28, borderRadius: 14 },
-  brand: { fontSize: 28, letterSpacing: 6 },
-  tagline: { fontSize: 15, letterSpacing: 0.5 },
-  form: { gap: 10 },
-  terms: { fontSize: 12, textAlign: "center", lineHeight: 18 },
+  root: { flex: 1, backgroundColor: "#0A0A0A", justifyContent: "space-between" },
+  hero: { flex: 1, alignItems: "center", justifyContent: "center", gap: 14 },
+  logoRing: {
+    width: 76,
+    height: 76,
+    borderRadius: 38,
+    borderWidth: 2,
+    borderColor: CYAN + "55",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  logoDot: { width: 30, height: 30, borderRadius: 15, backgroundColor: CYAN },
+  brand: {
+    fontFamily: "Inter_700Bold",
+    fontSize: 28,
+    letterSpacing: 7,
+    color: "#E5E7EB",
+  },
+  tagline: {
+    fontFamily: "Inter_400Regular",
+    fontSize: 14,
+    color: "#6B7280",
+    textAlign: "center",
+  },
+  actions: { paddingHorizontal: 28, gap: 16 },
+  primaryBtn: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: CYAN,
+    borderRadius: 14,
+    paddingVertical: 16,
+    paddingHorizontal: 20,
+    gap: 12,
+  },
+  secondaryBtn: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#111827",
+    borderRadius: 14,
+    paddingVertical: 16,
+    paddingHorizontal: 20,
+    gap: 12,
+    borderWidth: 1,
+    borderColor: "#1F2937",
+  },
+  pressed: { opacity: 0.8 },
+  btnIcon: {
+    width: 36,
+    height: 36,
+    borderRadius: 10,
+    backgroundColor: "#0A0A0A33",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  btnIconOutline: { backgroundColor: CYAN + "1A" },
+  primaryBtnText: {
+    flex: 1,
+    fontFamily: "Inter_600SemiBold",
+    fontSize: 16,
+    color: "#0A0A0A",
+  },
+  secondaryBtnText: {
+    flex: 1,
+    fontFamily: "Inter_600SemiBold",
+    fontSize: 16,
+    color: "#E5E7EB",
+  },
+  divider: { flexDirection: "row", alignItems: "center", gap: 12 },
+  dividerLine: { flex: 1, height: StyleSheet.hairlineWidth, backgroundColor: "#1F2937" },
+  dividerText: { fontFamily: "Inter_400Regular", fontSize: 13, color: "#6B7280" },
+  terms: { fontFamily: "Inter_400Regular", fontSize: 12, color: "#6B7280", textAlign: "center", lineHeight: 18 },
+  termsLink: { color: CYAN },
 });

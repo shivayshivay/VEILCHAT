@@ -1,3 +1,5 @@
+import "../global.css";
+
 import {
   Inter_400Regular,
   Inter_500Medium,
@@ -10,6 +12,7 @@ import { Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import * as SystemUI from "expo-system-ui";
 import React, { useEffect } from "react";
+import { StyleSheet } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { KeyboardProvider } from "react-native-keyboard-controller";
 import { SafeAreaProvider } from "react-native-safe-area-context";
@@ -17,6 +20,12 @@ import { ErrorBoundary } from "@/components/ErrorBoundary";
 
 SplashScreen.preventAutoHideAsync();
 SystemUI.setBackgroundColorAsync("#0A0A0A");
+
+// NativeWind v4: switch to class-based dark mode to prevent color-scheme conflicts
+(StyleSheet as unknown as { setFlag?: (key: string, value: string) => void }).setFlag?.(
+  "darkMode",
+  "class"
+);
 
 const queryClient = new QueryClient();
 
@@ -40,7 +49,10 @@ export default function RootLayout() {
     <SafeAreaProvider>
       <ErrorBoundary>
         <QueryClientProvider client={queryClient}>
-          <GestureHandlerRootView style={{ flex: 1, backgroundColor: "#0A0A0A" }}>
+          <GestureHandlerRootView
+            className="dark"
+            style={{ flex: 1, backgroundColor: "#0A0A0A" }}
+          >
             <KeyboardProvider>
               <Stack
                 screenOptions={{

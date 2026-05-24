@@ -1,104 +1,348 @@
 import { LinearGradient } from "expo-linear-gradient";
 import { router } from "expo-router";
-import React, { useRef, useState } from "react";
-import { KeyboardAvoidingView, Platform, Pressable, StyleSheet, Text, TextInput, View } from "react-native";
+import React, { useCallback, useEffect, useRef, useState } from "react";
+import {
+  KeyboardAvoidingView,
+  NativeSyntheticEvent,
+  Platform,
+  Pressable,
+  StyleSheet,
+  Text,
+  TextInput,
+  TextInputKeyPressEventData,
+  View,
+} from "react-native";
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withSequence,
+  withTiming,
+  withSpring,
+} from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { VeilButton } from "@/components/ui/VeilButton";
+import { Ionicons } from "@expo/vector-icons";
 import { useAuthStore } from "@/store/authStore";
-import { useColors } from "@/hooks/useColors";
+
+const OTP_LENGTH = 6;
+const RESEND_SECONDS = 60;
 
 export default function OtpScreen() {
-  const colors = useColors();
   const insets = useSafeAreaInsets();
-  const { verifyOtp, pendingPhone, isLoading, error } = useAuthStore();
-  const [otp, setOtp] = useState(["", "", "", "", "", ""]);
-  const refs = useRef<(TextInput | null)[]>([]);
+  const { verifyOtp, loginWithPhone, pendingPhone, isLoading, error, setError } = useAuthStore();
 
-  const handleChange = (val: string, idx: number) => {
-    const digit = val.replace(/\D/g, "").slice(-1);
+  const [otp, setOtp] = useState<string[]>(Array(OTP_LENGTH).fill(""));
+  const [activeIndex, setActiveIndex] = useState(0);
+  const [resendTimer, setResendTimer] = useState(RESEND_SECONDS);
+  const [canResend, setCanResend] = useState(false);
+
+  const inputRefs = useRef<(TextInput | null)[]>(Array(OTP_LENGTH).fill(null));
+  const shakeX = useSharedValue(0);
+
+  const topPad = insets.top + (Platform.OS === "web" ? 67 : 0);
+  const botPad = Math.max(insets.bottom, Platform.OS === "web" ? 34 : 24);
+  const isFull = otp.every((d) => d !== "");
+
+  useEffect(() => {
+    setError(null);
+    const t = setTimeout(() => inputRefs.current[0]?.focus(), 300);
+    return () => clearTimeout(t);
+  }, []);
+
+  useEffect(() => {
+    if (resendTimer <= 0) { setCanResend(true); return; }
+    const t = setInterval(() => setResendTimer((s) => s - 1), 1000);
+    return () => clearInterval(t);
+  }, [resendTimer]);
+
+  const shakeStyle = useAnimatedStyle(() => ({
+    transform: [{ translateX: shakeX.value }],
+  }));
+
+  const triggerShake = useCallback(() => {
+    shakeX.value = withSequence(
+      withTiming(-8, { duration: 60 }),
+      withTiming(8, { duration: 60 }),
+      withTiming(-6, { duration: 60 }),
+      withTiming(6, { duration: 60 }),
+      withTiming(0, { duration: 60 })
+    );
+  }, [shakeX]);
+
+  const handleChangeText = useCallback((val: string, idx: number) => {
+    const cleaned = val.replace(/\D/g, "");
+    setError(null);
+
+    if (cleaned.length > 1) {
+      const digits = cleaned.slice(0, OTP_LENGTH);
+      const next = [...otp];
+      digits.split("").forEach((d, i) => {
+        if (i < OTP_LENGTH) next[i] = d;
+      });
+      setOtp(next);
+      const nextIdx = Math.min(digits.length, OTP_LENGTH - 1);
+      setActiveIndex(nextIdx);
+      setTimeout(() => inputRefs.current[nextIdx]?.focus(), 0);
+      return;
+    }
+
+    const digit = cleaned.slice(-1);
     const next = [...otp];
     next[idx] = digit;
     setOtp(next);
-    if (digit && idx < 5) refs.current[idx + 1]?.focus();
-    if (!digit && idx > 0) refs.current[idx - 1]?.focus();
-  };
 
-  const handleVerify = async () => {
+    if (digit && idx < OTP_LENGTH - 1) {
+      const nextIdx = idx + 1;
+      setActiveIndex(nextIdx);
+      setTimeout(() => inputRefs.current[nextIdx]?.focus(), 0);
+    }
+  }, [otp, setError]);
+
+  const handleKeyPress = useCallback(
+    (e: NativeSyntheticEvent<TextInputKeyPressEventData>, idx: number) => {
+      if (e.nativeEvent.key === "Backspace") {
+        setError(null);
+        if (otp[idx] === "" && idx > 0) {
+          const next = [...otp];
+          next[idx - 1] = "";
+          setOtp(next);
+          const prevIdx = idx - 1;
+          setActiveIndex(prevIdx);
+          setTimeout(() => inputRefs.current[prevIdx]?.focus(), 0);
+        } else {
+          const next = [...otp];
+          next[idx] = "";
+          setOtp(next);
+        }
+      }
+    },
+    [otp, setError]
+  );
+
+  const handleVerify = useCallback(async () => {
     const code = otp.join("");
-    if (code.length < 6) return;
+    if (code.length < OTP_LENGTH) return;
     const ok = await verifyOtp(code);
-    if (ok) router.push("/(auth)/profile-setup");
-  };
+    if (ok) {
+      router.push("/(auth)/profile-setup");
+    } else {
+      triggerShake();
+      setOtp(Array(OTP_LENGTH).fill(""));
+      setActiveIndex(0);
+      setTimeout(() => inputRefs.current[0]?.focus(), 100);
+    }
+  }, [otp, verifyOtp, triggerShake]);
 
-  const topPad = insets.top + (Platform.OS === "web" ? 67 : 0);
-  const botPad = Math.max(insets.bottom, Platform.OS === "web" ? 34 : 0);
-  const isFull = otp.every((d) => d !== "");
+  const handleResend = async () => {
+    if (!canResend) return;
+    setOtp(Array(OTP_LENGTH).fill(""));
+    setActiveIndex(0);
+    setError(null);
+    setResendTimer(RESEND_SECONDS);
+    setCanResend(false);
+    await loginWithPhone(pendingPhone);
+    setTimeout(() => inputRefs.current[0]?.focus(), 200);
+  };
 
   return (
-    <View style={[styles.root, { backgroundColor: colors.background }]}>
-      <LinearGradient colors={[colors.primary + "11", colors.background]} style={StyleSheet.absoluteFill} start={{ x: 0.5, y: 0 }} end={{ x: 0.5, y: 0.4 }} />
-      <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} style={styles.kav}>
-        <View style={[styles.inner, { paddingTop: topPad + 40, paddingBottom: botPad + 32, paddingHorizontal: 28 }]}>
-          <Pressable onPress={() => router.back()} style={styles.back}>
-            <Text style={[styles.backText, { color: colors.primary, fontFamily: "Inter_500Medium" }]}>← Back</Text>
-          </Pressable>
-          <View style={styles.content}>
-            <Text style={[styles.title, { color: colors.foreground, fontFamily: "Inter_700Bold" }]}>
-              Verify your number
-            </Text>
-            <Text style={[styles.sub, { color: colors.mutedForeground, fontFamily: "Inter_400Regular" }]}>
-              Code sent to {pendingPhone || "your number"}
-            </Text>
-            <View style={styles.digits}>
-              {otp.map((d, i) => (
-                <TextInput
-                  key={i}
-                  ref={(r) => { refs.current[i] = r; }}
-                  value={d}
-                  onChangeText={(v) => handleChange(v, i)}
-                  keyboardType="numeric"
-                  maxLength={1}
-                  style={[
-                    styles.digit,
-                    {
-                      backgroundColor: colors.surface,
-                      color: colors.foreground,
-                      borderColor: d ? colors.primary : colors.border,
-                      borderRadius: colors.radius - 4,
-                      fontFamily: "Inter_700Bold",
-                    },
-                  ]}
-                  textAlign="center"
-                />
-              ))}
-            </View>
-            {error && (
-              <Text style={[styles.error, { color: colors.destructive, fontFamily: "Inter_400Regular" }]}>
-                {error}
-              </Text>
-            )}
-            <Text style={[styles.hint, { color: colors.mutedForeground, fontFamily: "Inter_400Regular" }]}>
-              Demo code: <Text style={{ color: colors.primary }}>123456</Text>
+    <KeyboardAvoidingView
+      style={styles.root}
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+    >
+      <LinearGradient
+        colors={["#00F5D412", "#0A0A0A"]}
+        style={StyleSheet.absoluteFill}
+        start={{ x: 0.5, y: 0 }}
+        end={{ x: 0.5, y: 0.4 }}
+      />
+
+      <View style={[styles.inner, { paddingTop: topPad + 16, paddingBottom: botPad }]}>
+        <Pressable onPress={() => router.back()} style={styles.back}>
+          <Ionicons name="chevron-back" size={24} color="#E5E7EB" />
+          <Text style={styles.backText}>Back</Text>
+        </Pressable>
+
+        <View style={styles.content}>
+          <View style={styles.header}>
+            <Text style={styles.title}>Enter the code</Text>
+            <Text style={styles.subtitle}>
+              Sent to{" "}
+              <Text style={styles.phone}>{pendingPhone || "your number"}</Text>
             </Text>
           </View>
-          <VeilButton label="Verify" onPress={handleVerify} loading={isLoading} disabled={!isFull} fullWidth />
+
+          <Animated.View style={[styles.digitRow, shakeStyle]}>
+            {otp.map((d, i) => {
+              const isActive = i === activeIndex;
+              const isFilled = d !== "";
+              return (
+                <Pressable
+                  key={i}
+                  onPress={() => {
+                    setActiveIndex(i);
+                    inputRefs.current[i]?.focus();
+                  }}
+                  style={[
+                    styles.digitBox,
+                    isActive && styles.digitBoxActive,
+                    isFilled && !isActive && styles.digitBoxFilled,
+                    error && styles.digitBoxError,
+                  ]}
+                >
+                  {Platform.OS === "web" ? (
+                    <TextInput
+                      ref={(r) => { inputRefs.current[i] = r; }}
+                      value={d}
+                      onChangeText={(v) => handleChangeText(v, i)}
+                      onKeyPress={(e) => handleKeyPress(e, i)}
+                      onFocus={() => setActiveIndex(i)}
+                      keyboardType="numeric"
+                      maxLength={6}
+                      style={[styles.digitInput, isFilled && styles.digitInputFilled]}
+                      textAlign="center"
+                      caretHidden
+                      selectTextOnFocus
+                    />
+                  ) : (
+                    <TextInput
+                      ref={(r) => { inputRefs.current[i] = r; }}
+                      value={d}
+                      onChangeText={(v) => handleChangeText(v, i)}
+                      onKeyPress={(e) => handleKeyPress(e, i)}
+                      onFocus={() => setActiveIndex(i)}
+                      keyboardType="number-pad"
+                      maxLength={6}
+                      style={[styles.digitInput, isFilled && styles.digitInputFilled]}
+                      textAlign="center"
+                      caretHidden
+                    />
+                  )}
+                </Pressable>
+              );
+            })}
+          </Animated.View>
+
+          {error ? (
+            <View style={styles.errorRow}>
+              <Ionicons name="alert-circle-outline" size={14} color="#EF4444" />
+              <Text style={styles.errorText}>{error}</Text>
+            </View>
+          ) : (
+            <Text style={styles.hint}>
+              Demo code:{" "}
+              <Text
+                style={styles.hintCode}
+                onPress={() => {
+                  setOtp(["1","2","3","4","5","6"]);
+                  setActiveIndex(5);
+                  setTimeout(() => inputRefs.current[5]?.focus(), 0);
+                }}
+              >
+                123456
+              </Text>
+            </Text>
+          )}
+
+          <Pressable onPress={handleResend} disabled={!canResend} style={styles.resendBtn}>
+            <Text style={[styles.resendText, !canResend && styles.resendDisabled]}>
+              {canResend
+                ? "Resend Code"
+                : `Resend in ${resendTimer}s`}
+            </Text>
+          </Pressable>
         </View>
-      </KeyboardAvoidingView>
-    </View>
+
+        <Pressable
+          onPress={handleVerify}
+          disabled={!isFull || isLoading}
+          style={({ pressed }) => [
+            styles.verifyBtn,
+            (!isFull || isLoading) && styles.verifyBtnDisabled,
+            pressed && styles.pressed,
+          ]}
+        >
+          <Text style={styles.verifyBtnText}>
+            {isLoading ? "Verifying..." : "Verify Code"}
+          </Text>
+          {!isLoading && <Ionicons name="checkmark" size={20} color="#0A0A0A" />}
+        </Pressable>
+      </View>
+    </KeyboardAvoidingView>
   );
 }
 
+const CYAN = "#00F5D4";
+const RED = "#EF4444";
+
 const styles = StyleSheet.create({
-  root: { flex: 1 },
-  kav: { flex: 1 },
-  inner: { flex: 1 },
-  back: { marginBottom: 32 },
-  backText: { fontSize: 15 },
-  content: { flex: 1, justifyContent: "center", gap: 16, marginBottom: 32 },
-  title: { fontSize: 26 },
-  sub: { fontSize: 15 },
-  digits: { flexDirection: "row", gap: 10, marginTop: 16 },
-  digit: { flex: 1, height: 58, fontSize: 24, borderWidth: 1.5 },
-  error: { fontSize: 13 },
-  hint: { fontSize: 13 },
+  root: { flex: 1, backgroundColor: "#0A0A0A" },
+  inner: { flex: 1, paddingHorizontal: 28 },
+  back: { flexDirection: "row", alignItems: "center", gap: 4, marginBottom: 40 },
+  backText: { fontFamily: "Inter_500Medium", fontSize: 15, color: "#E5E7EB" },
+  content: { flex: 1, gap: 24 },
+  header: { gap: 8 },
+  title: { fontFamily: "Inter_700Bold", fontSize: 28, color: "#E5E7EB" },
+  subtitle: { fontFamily: "Inter_400Regular", fontSize: 15, color: "#6B7280" },
+  phone: { fontFamily: "Inter_600SemiBold", color: "#E5E7EB" },
+  digitRow: {
+    flexDirection: "row",
+    gap: 10,
+    justifyContent: "center",
+    marginTop: 8,
+  },
+  digitBox: {
+    flex: 1,
+    maxWidth: 52,
+    height: 60,
+    borderRadius: 12,
+    backgroundColor: "#111827",
+    borderWidth: 1.5,
+    borderColor: "#1F2937",
+    alignItems: "center",
+    justifyContent: "center",
+    overflow: "hidden",
+  },
+  digitBoxActive: {
+    borderColor: CYAN,
+    backgroundColor: "#00F5D40A",
+  },
+  digitBoxFilled: {
+    borderColor: CYAN + "66",
+  },
+  digitBoxError: {
+    borderColor: RED + "80",
+    backgroundColor: RED + "0A",
+  },
+  digitInput: {
+    width: "100%",
+    height: "100%",
+    fontFamily: "Inter_700Bold",
+    fontSize: 22,
+    color: "#E5E7EB",
+    textAlign: "center",
+  },
+  digitInputFilled: { color: CYAN },
+  errorRow: { flexDirection: "row", alignItems: "center", gap: 6, marginTop: -8 },
+  errorText: { fontFamily: "Inter_400Regular", fontSize: 13, color: RED },
+  hint: { fontFamily: "Inter_400Regular", fontSize: 13, color: "#6B7280", marginTop: -8 },
+  hintCode: {
+    fontFamily: "Inter_600SemiBold",
+    color: CYAN,
+    textDecorationLine: "underline",
+  },
+  resendBtn: { alignSelf: "flex-start" },
+  resendText: { fontFamily: "Inter_500Medium", fontSize: 14, color: CYAN },
+  resendDisabled: { color: "#374151" },
+  verifyBtn: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: CYAN,
+    borderRadius: 14,
+    paddingVertical: 16,
+    gap: 8,
+    marginTop: 16,
+  },
+  verifyBtnDisabled: { opacity: 0.4 },
+  pressed: { opacity: 0.85 },
+  verifyBtnText: { fontFamily: "Inter_700Bold", fontSize: 16, color: "#0A0A0A" },
 });
