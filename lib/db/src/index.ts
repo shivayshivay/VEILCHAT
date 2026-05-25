@@ -4,13 +4,18 @@ import * as schema from "./schema";
 
 const { Pool } = pg;
 
-if (!process.env.DATABASE_URL) {
-  throw new Error(
-    "DATABASE_URL must be set. Did you forget to provision a database?",
+const dbUrl = process.env.DATABASE_URL;
+
+if (!dbUrl) {
+  console.warn(
+    "[db] DATABASE_URL is not set — database features are disabled. " +
+      "Set DATABASE_URL to enable database-backed routes."
   );
 }
 
-export const pool = new Pool({ connectionString: process.env.DATABASE_URL });
-export const db = drizzle(pool, { schema });
+export const pool = dbUrl ? new Pool({ connectionString: dbUrl }) : null;
+export const db = dbUrl ? drizzle(pool as pg.Pool, { schema }) : null;
+
+export { eq, and, or, sql, asc, desc, inArray, isNull, isNotNull, ne } from "drizzle-orm";
 
 export * from "./schema";

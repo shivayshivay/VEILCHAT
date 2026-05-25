@@ -30,3 +30,16 @@ externalPort = 8081
 [[ports]]
 localPort = 25596
 externalPort = 3000
+
+[userenv]
+
+[userenv.shared]
+DATABASE_URL = "postgresql://postgres:VeilChat%402026Secure@db.zgmzbfejauplhzqwrdeq.supabase.co:5432/postgres"
+SUPABASE_URL = "https://zgmzbfejauplhzqwrdeq.supabase.co"
+SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpnbXpiZmVqYXVwbGh6cXdyZGVxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk2Mjg0NzgsImV4cCI6MjA5NTIwNDQ3OH0.kSdJL-isR2o0g6N1PRuS73dVWM783hPgG6JmegJcfeo"
+EXPO_PUBLIC_FIREBASE_API_KEY = "AIzaSyA-jr0qrxkvisgeBzrxbVuEzpZt5WMnQ2M"
+EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN = "veilchat-5d031.firebaseapp.com"
+EXPO_PUBLIC_FIREBASE_PROJECT_ID = "veilchat-5d031"
+EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET = "veilchat-5d031.firebasestorage.app"
+EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID = "926730065046"
+EXPO_PUBLIC_FIREBASE_APP_ID = "1:926730065046:web:793cdf370e71fedcb6deb7"
