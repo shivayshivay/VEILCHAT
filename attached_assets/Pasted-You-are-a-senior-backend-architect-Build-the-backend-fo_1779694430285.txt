@@ -1,0 +1,112 @@
+You are a senior backend architect.
+
+Build the backend foundation for VEILCHAT using:
+
+- Node.js
+- Express.js
+- Socket.IO
+- Supabase PostgreSQL
+- Firebase Admin SDK
+- JWT authentication
+- Cloudinary
+- Upstash Redis
+
+IMPORTANT:
+Do NOT generate frontend code.
+
+==================================================
+GOAL
+==================================================
+
+Build a scalable realtime backend architecture for a secure messaging app.
+
+The architecture must support:
+- realtime chat
+- offline sync
+- typing indicators
+- delivery states
+- media uploads
+- future voice/video calls
+- future advanced privacy systems
+
+==================================================
+PROJECT STRUCTURE
+==================================================
+
+Create clean scalable structure:
+
+/server
+  /src
+    /config
+    /controllers
+    /routes
+    /middleware
+    /services
+    /sockets
+    /utils
+    /validators
+    /database
+    /types
+
+Use TypeScript.
+
+==================================================
+FIRST IMPLEMENTATION
+==================================================
+
+Build ONLY:
+
+1. Express server setup
+2. Socket.IO server setup
+3. Supabase connection
+4. Firebase Admin setup
+5. JWT auth middleware
+6. Error handling middleware
+7. Logging middleware
+8. Environment configuration
+9. Basic user model
+10. Health check route
+
+DO NOT build messaging logic yet.
+
+==================================================
+ENGINEERING RULES
+==================================================
+
+- clean architecture
+- scalable structure
+- modular services
+- reusable middleware
+- TypeScript types everywhere
+- production-ready code
+- secure defaults
+- proper validation
+- proper async handling
+
+Generate backend foundation only.
+
+Now build the authentication module.
+
+Features:
+- Firebase token verification
+- JWT session generation
+- refresh tokens
+- secure auth middleware
+- user registration
+- user profile setup
+- device tracking
+- session persistence
+
+Create:
+- auth routes
+- auth controllers
+- auth services
+- validators
+- middleware
+
+Use:
+- Supabase PostgreSQL
+- TypeScript
+- Express.js
+
+Do not build chat system yet.
