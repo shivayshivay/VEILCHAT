@@ -57,6 +57,7 @@
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.106.1",
+    "expo-firebase-recaptcha": "^2.3.1",
     "firebase": "^12.13.0",
     "nativewind": "^4.2.4",
     "socket.io-client": "^4.8.3",

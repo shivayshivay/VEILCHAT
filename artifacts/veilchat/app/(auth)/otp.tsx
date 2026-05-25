@@ -21,7 +21,9 @@ import Animated, {
 } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
+import { FirebaseRecaptchaVerifierModal } from "expo-firebase-recaptcha";
 import { useAuthStore } from "@/store/authStore";
+import { firebaseConfig, isFirebaseConfigured } from "@/src/config/firebase";
 
 const OTP_LENGTH = 6;
 const RESEND_SECONDS = 60;
@@ -34,9 +36,12 @@ export default function OtpScreen() {
   const [activeIndex, setActiveIndex] = useState(0);
   const [resendTimer, setResendTimer] = useState(RESEND_SECONDS);
   const [canResend, setCanResend] = useState(false);
+  const [resending, setResending] = useState(false);
 
   const inputRefs = useRef<(TextInput | null)[]>(Array(OTP_LENGTH).fill(null));
+  const recaptchaVerifierRef = useRef<FirebaseRecaptchaVerifierModal>(null);
   const shakeX = useSharedValue(0);
+  const successScale = useSharedValue(1);
 
   const topPad = insets.top + (Platform.OS === "web" ? 67 : 0);
   const botPad = Math.max(insets.bottom, Platform.OS === "web" ? 34 : 24);
@@ -58,15 +63,27 @@ export default function OtpScreen() {
     transform: [{ translateX: shakeX.value }],
   }));
 
+  const successStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: successScale.value }],
+  }));
+
   const triggerShake = useCallback(() => {
     shakeX.value = withSequence(
-      withTiming(-8, { duration: 60 }),
-      withTiming(8, { duration: 60 }),
-      withTiming(-6, { duration: 60 }),
-      withTiming(6, { duration: 60 }),
-      withTiming(0, { duration: 60 })
+      withTiming(-10, { duration: 55 }),
+      withTiming(10, { duration: 55 }),
+      withTiming(-7, { duration: 55 }),
+      withTiming(7, { duration: 55 }),
+      withTiming(-4, { duration: 55 }),
+      withTiming(0, { duration: 55 })
     );
   }, [shakeX]);
+
+  const triggerSuccess = useCallback(() => {
+    successScale.value = withSequence(
+      withSpring(1.04, { damping: 12 }),
+      withSpring(1, { damping: 14 })
+    );
+  }, [successScale]);
 
   const handleChangeText = useCallback((val: string, idx: number) => {
     const cleaned = val.replace(/\D/g, "");
@@ -120,153 +137,192 @@ export default function OtpScreen() {
 
   const handleVerify = useCallback(async () => {
     const code = otp.join("");
-    if (code.length < OTP_LENGTH) return;
+    if (code.length < OTP_LENGTH || isLoading) return;
     const ok = await verifyOtp(code);
     if (ok) {
-      router.push("/(auth)/profile-setup");
+      triggerSuccess();
+      setTimeout(() => router.push("/(auth)/profile-setup"), 200);
     } else {
       triggerShake();
       setOtp(Array(OTP_LENGTH).fill(""));
       setActiveIndex(0);
       setTimeout(() => inputRefs.current[0]?.focus(), 100);
     }
-  }, [otp, verifyOtp, triggerShake]);
+  }, [otp, isLoading, verifyOtp, triggerShake, triggerSuccess]);
 
   const handleResend = async () => {
-    if (!canResend) return;
+    if (!canResend || resending) return;
     setOtp(Array(OTP_LENGTH).fill(""));
     setActiveIndex(0);
     setError(null);
     setResendTimer(RESEND_SECONDS);
     setCanResend(false);
-    await loginWithPhone(pendingPhone);
+    setResending(true);
+    try {
+      await loginWithPhone(pendingPhone, recaptchaVerifierRef.current ?? undefined);
+    } catch {
+      // error set in store
+    } finally {
+      setResending(false);
+    }
     setTimeout(() => inputRefs.current[0]?.focus(), 200);
   };
 
+  const fillDemo = () => {
+    setOtp(["1", "2", "3", "4", "5", "6"]);
+    setActiveIndex(5);
+    setTimeout(() => inputRefs.current[5]?.focus(), 0);
+  };
+
   return (
-    <KeyboardAvoidingView
-      style={styles.root}
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
-    >
-      <LinearGradient
-        colors={["#00F5D412", "#0A0A0A"]}
-        style={StyleSheet.absoluteFill}
-        start={{ x: 0.5, y: 0 }}
-        end={{ x: 0.5, y: 0.4 }}
+    <>
+      <FirebaseRecaptchaVerifierModal
+        ref={recaptchaVerifierRef}
+        firebaseConfig={firebaseConfig}
+        attemptInvisibleVerification
+        title="Verify you're human"
+        cancelLabel="Cancel"
       />
 
-      <View style={[styles.inner, { paddingTop: topPad + 16, paddingBottom: botPad }]}>
-        <Pressable onPress={() => router.back()} style={styles.back}>
-          <Ionicons name="chevron-back" size={24} color="#E5E7EB" />
-          <Text style={styles.backText}>Back</Text>
-        </Pressable>
+      <KeyboardAvoidingView
+        style={styles.root}
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+      >
+        <LinearGradient
+          colors={["#00F5D412", "#0A0A0A"]}
+          style={StyleSheet.absoluteFill}
+          start={{ x: 0.5, y: 0 }}
+          end={{ x: 0.5, y: 0.4 }}
+        />
 
-        <View style={styles.content}>
-          <View style={styles.header}>
-            <Text style={styles.title}>Enter the code</Text>
-            <Text style={styles.subtitle}>
-              Sent to{" "}
-              <Text style={styles.phone}>{pendingPhone || "your number"}</Text>
-            </Text>
+        <View style={[styles.inner, { paddingTop: topPad + 16, paddingBottom: botPad }]}>
+          <Pressable onPress={() => router.back()} style={styles.back}>
+            <Ionicons name="chevron-back" size={24} color="#E5E7EB" />
+            <Text style={styles.backText}>Back</Text>
+          </Pressable>
+
+          <View style={styles.content}>
+            <View style={styles.header}>
+              <Text style={styles.title}>Enter the code</Text>
+              <Text style={styles.subtitle}>
+                Sent to{" "}
+                <Text style={styles.phone}>{pendingPhone || "your number"}</Text>
+              </Text>
+            </View>
+
+            <Animated.View style={[styles.digitRow, shakeStyle, successStyle]}>
+              {otp.map((d, i) => {
+                const isActive = i === activeIndex;
+                const isFilled = d !== "";
+                return (
+                  <Pressable
+                    key={i}
+                    onPress={() => {
+                      setActiveIndex(i);
+                      inputRefs.current[i]?.focus();
+                    }}
+                    style={[
+                      styles.digitBox,
+                      isActive && styles.digitBoxActive,
+                      isFilled && !isActive && styles.digitBoxFilled,
+                      error && styles.digitBoxError,
+                    ]}
+                  >
+                    {Platform.OS === "web" ? (
+                      <TextInput
+                        ref={(r) => { inputRefs.current[i] = r; }}
+                        value={d}
+                        onChangeText={(v) => handleChangeText(v, i)}
+                        onKeyPress={(e) => handleKeyPress(e, i)}
+                        onFocus={() => setActiveIndex(i)}
+                        keyboardType="numeric"
+                        maxLength={6}
+                        style={[styles.digitInput, isFilled && styles.digitInputFilled]}
+                        textAlign="center"
+                        caretHidden
+                        selectTextOnFocus
+                      />
+                    ) : (
+                      <TextInput
+                        ref={(r) => { inputRefs.current[i] = r; }}
+                        value={d}
+                        onChangeText={(v) => handleChangeText(v, i)}
+                        onKeyPress={(e) => handleKeyPress(e, i)}
+                        onFocus={() => setActiveIndex(i)}
+                        keyboardType="number-pad"
+                        maxLength={6}
+                        style={[styles.digitInput, isFilled && styles.digitInputFilled]}
+                        textAlign="center"
+                        caretHidden
+                      />
+                    )}
+                  </Pressable>
+                );
+              })}
+            </Animated.View>
+
+            {error ? (
+              <View style={styles.feedbackRow}>
+                <Ionicons name="alert-circle-outline" size={14} color="#EF4444" />
+                <Text style={styles.errorText}>{error}</Text>
+              </View>
+            ) : isFirebaseConfigured ? (
+              <View style={styles.feedbackRow}>
+                <Ionicons name="shield-checkmark-outline" size={14} color="#374151" />
+                <Text style={styles.hint}>Firebase SMS verification active</Text>
+              </View>
+            ) : (
+              <View style={styles.feedbackRow}>
+                <Ionicons name="information-circle-outline" size={14} color="#374151" />
+                <Text style={styles.hint}>
+                  Demo mode — tap{" "}
+                  <Text style={styles.hintCode} onPress={fillDemo}>
+                    123456
+                  </Text>{" "}
+                  to auto-fill
+                </Text>
+              </View>
+            )}
+
+            <Pressable
+              onPress={handleResend}
+              disabled={!canResend || resending}
+              style={styles.resendBtn}
+            >
+              <Text style={[styles.resendText, (!canResend || resending) && styles.resendDisabled]}>
+                {resending
+                  ? "Sending…"
+                  : canResend
+                  ? "Resend Code"
+                  : `Resend in ${resendTimer}s`}
+              </Text>
+            </Pressable>
           </View>
 
-          <Animated.View style={[styles.digitRow, shakeStyle]}>
-            {otp.map((d, i) => {
-              const isActive = i === activeIndex;
-              const isFilled = d !== "";
-              return (
-                <Pressable
-                  key={i}
-                  onPress={() => {
-                    setActiveIndex(i);
-                    inputRefs.current[i]?.focus();
-                  }}
-                  style={[
-                    styles.digitBox,
-                    isActive && styles.digitBoxActive,
-                    isFilled && !isActive && styles.digitBoxFilled,
-                    error && styles.digitBoxError,
-                  ]}
-                >
-                  {Platform.OS === "web" ? (
-                    <TextInput
-                      ref={(r) => { inputRefs.current[i] = r; }}
-                      value={d}
-                      onChangeText={(v) => handleChangeText(v, i)}
-                      onKeyPress={(e) => handleKeyPress(e, i)}
-                      onFocus={() => setActiveIndex(i)}
-                      keyboardType="numeric"
-                      maxLength={6}
-                      style={[styles.digitInput, isFilled && styles.digitInputFilled]}
-                      textAlign="center"
-                      caretHidden
-                      selectTextOnFocus
-                    />
-                  ) : (
-                    <TextInput
-                      ref={(r) => { inputRefs.current[i] = r; }}
-                      value={d}
-                      onChangeText={(v) => handleChangeText(v, i)}
-                      onKeyPress={(e) => handleKeyPress(e, i)}
-                      onFocus={() => setActiveIndex(i)}
-                      keyboardType="number-pad"
-                      maxLength={6}
-                      style={[styles.digitInput, isFilled && styles.digitInputFilled]}
-                      textAlign="center"
-                      caretHidden
-                    />
-                  )}
-                </Pressable>
-              );
-            })}
-          </Animated.View>
-
-          {error ? (
-            <View style={styles.errorRow}>
-              <Ionicons name="alert-circle-outline" size={14} color="#EF4444" />
-              <Text style={styles.errorText}>{error}</Text>
-            </View>
-          ) : (
-            <Text style={styles.hint}>
-              Demo code:{" "}
-              <Text
-                style={styles.hintCode}
-                onPress={() => {
-                  setOtp(["1","2","3","4","5","6"]);
-                  setActiveIndex(5);
-                  setTimeout(() => inputRefs.current[5]?.focus(), 0);
-                }}
-              >
-                123456
-              </Text>
-            </Text>
-          )}
-
-          <Pressable onPress={handleResend} disabled={!canResend} style={styles.resendBtn}>
-            <Text style={[styles.resendText, !canResend && styles.resendDisabled]}>
-              {canResend
-                ? "Resend Code"
-                : `Resend in ${resendTimer}s`}
-            </Text>
+          <Pressable
+            onPress={handleVerify}
+            disabled={!isFull || isLoading}
+            style={({ pressed }) => [
+              styles.verifyBtn,
+              (!isFull || isLoading) && styles.verifyBtnDisabled,
+              pressed && styles.pressed,
+            ]}
+          >
+            {isLoading ? (
+              <>
+                <View style={styles.spinner} />
+                <Text style={styles.verifyBtnText}>Verifying…</Text>
+              </>
+            ) : (
+              <>
+                <Text style={styles.verifyBtnText}>Verify Code</Text>
+                <Ionicons name="checkmark" size={20} color="#0A0A0A" />
+              </>
+            )}
           </Pressable>
         </View>
-
-        <Pressable
-          onPress={handleVerify}
-          disabled={!isFull || isLoading}
-          style={({ pressed }) => [
-            styles.verifyBtn,
-            (!isFull || isLoading) && styles.verifyBtnDisabled,
-            pressed && styles.pressed,
-          ]}
-        >
-          <Text style={styles.verifyBtnText}>
-            {isLoading ? "Verifying..." : "Verify Code"}
-          </Text>
-          {!isLoading && <Ionicons name="checkmark" size={20} color="#0A0A0A" />}
-        </Pressable>
-      </View>
-    </KeyboardAvoidingView>
+      </KeyboardAvoidingView>
+    </>
   );
 }
 
@@ -321,9 +377,9 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   digitInputFilled: { color: CYAN },
-  errorRow: { flexDirection: "row", alignItems: "center", gap: 6, marginTop: -8 },
-  errorText: { fontFamily: "Inter_400Regular", fontSize: 13, color: RED },
-  hint: { fontFamily: "Inter_400Regular", fontSize: 13, color: "#6B7280", marginTop: -8 },
+  feedbackRow: { flexDirection: "row", alignItems: "center", gap: 6, marginTop: -8 },
+  errorText: { fontFamily: "Inter_400Regular", fontSize: 13, color: RED, flex: 1 },
+  hint: { fontFamily: "Inter_400Regular", fontSize: 13, color: "#6B7280" },
   hintCode: {
     fontFamily: "Inter_600SemiBold",
     color: CYAN,
@@ -345,4 +401,12 @@ const styles = StyleSheet.create({
   verifyBtnDisabled: { opacity: 0.4 },
   pressed: { opacity: 0.85 },
   verifyBtnText: { fontFamily: "Inter_700Bold", fontSize: 16, color: "#0A0A0A" },
+  spinner: {
+    width: 16,
+    height: 16,
+    borderRadius: 8,
+    borderWidth: 2,
+    borderColor: "#0A0A0A",
+    borderTopColor: "transparent",
+  },
 });

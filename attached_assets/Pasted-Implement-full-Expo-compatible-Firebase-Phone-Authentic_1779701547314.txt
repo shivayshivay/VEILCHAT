@@ -1,0 +1,111 @@
+Implement full Expo-compatible Firebase Phone Authentication with expo-firebase-recaptcha for VEILCHAT.
+
+IMPORTANT:
+The current OTP system partially works but still uses demo fallback mode on web/Expo Go.
+
+Now complete the production-ready Firebase OTP flow.
+
+==================================================
+GOAL
+==================================================
+
+Enable REAL Firebase SMS OTP delivery in:
+- Expo Go
+- Web preview
+- Development builds
+- Real mobile devices
+
+==================================================
+TASKS
+==================================================
+
+1. Install and configure:
+- expo-firebase-recaptcha
+
+2. Implement:
+- FirebaseRecaptchaVerifierModal
+- proper appVerifier handling
+- real signInWithPhoneNumber flow
+- confirmationResult persistence
+- secure OTP verification flow
+
+3. Ensure compatibility with:
+- Expo SDK
+- React Native
+- Firebase v12
+- Expo Go
+
+==================================================
+PHONE AUTH FLOW
+==================================================
+
+Required flow:
+
+Enter phone number
+→ open Firebase reCAPTCHA
+→ send real Firebase OTP SMS
+→ receive OTP
+→ verify OTP
+→ get Firebase ID token
+→ exchange for backend JWT
+→ persist session
+→ connect Socket.IO using JWT
+
+==================================================
+UI/UX REQUIREMENTS
+==================================================
+
+Add:
+- resend timer
+- loading states
+- invalid OTP states
+- network error handling
+- smooth transitions
+- premium OTP input experience
+
+==================================================
+DEBUGGING
+==================================================
+
+Verify:
+- Firebase initialization
+- recaptcha modal rendering
+- appVerifier handling
+- OTP delivery
+- OTP verification
+- session persistence
+- auth restoration after restart
+
+==================================================
+SECURITY
+==================================================
+
+Ensure:
+- no hardcoded OTPs
+- no demo fallbacks in production mode
+- proper Firebase token handling
+- secure session storage
+
+==================================================
+FINAL TESTS
+==================================================
+
+Run diagnostics:
+1. OTP send test
+2. OTP verify test
+3. Session restore test
+4. Firebase token validation
+5. JWT exchange validation
+6. Socket auth validation
+
+Generate final report showing:
+- working auth systems
+- remaining blockers
+- affected files
+- fixes applied
+
+==================================================
+FINAL GOAL
+==================================================
+
+VEILCHAT must support real Firebase SMS OTP authentication reliably across Expo and native environments with production-ready architecture.

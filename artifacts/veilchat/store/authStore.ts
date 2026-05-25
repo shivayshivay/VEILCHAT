@@ -20,22 +20,25 @@ let _confirmationResult: any = null;
 // Helper: exchange Firebase ID token for backend JWT
 async function exchangeFirebaseToken(
   idToken: string
-): Promise<AuthTokens | null> {
+): Promise<{ tokens: AuthTokens | null; userData?: Partial<VeilUser> }> {
   const baseUrl = env.api.baseUrl;
-  if (!baseUrl) return null;
+  if (!baseUrl) return { tokens: null };
   try {
     const res = await fetch(`${baseUrl}/auth/verify-firebase`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ idToken }),
     });
-    if (!res.ok) return null;
+    if (!res.ok) return { tokens: null };
     const body = await res.json();
     const tokens = body?.data?.tokens;
-    if (tokens?.accessToken && tokens?.refreshToken) return tokens as AuthTokens;
-    return null;
+    const userData = body?.data?.user ?? undefined;
+    if (tokens?.accessToken && tokens?.refreshToken) {
+      return { tokens: tokens as AuthTokens, userData };
+    }
+    return { tokens: null };
   } catch {
-    return null;
+    return { tokens: null };
   }
 }
 
@@ -56,7 +59,7 @@ interface AuthStore {
   setError: (error: string | null) => void;
   setHasSeenOnboarding: (seen: boolean) => void;
 
-  // appVerifier: optional ApplicationVerifier (expo-firebase-recaptcha ref)
+  // appVerifier: optional ApplicationVerifier (FirebaseRecaptchaVerifierModal ref)
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   loginWithPhone: (phone: string, appVerifier?: any) => Promise<void>;
   loginWithEmail: (email: string, password: string, isSignUp?: boolean) => Promise<boolean>;
@@ -94,7 +97,6 @@ export const useAuthStore = create<AuthStore>()(
         _confirmationResult = null;
         try {
           if (isFirebaseEnvConfigured && appVerifier) {
-            // Real Firebase Phone Auth
             const { firebaseAuth } = await import("@/src/config/firebase");
             if (firebaseAuth) {
               const { signInWithPhoneNumber } = await import("firebase/auth");
@@ -108,8 +110,8 @@ export const useAuthStore = create<AuthStore>()(
               return;
             }
           }
-          // Demo mode: simulate SMS send
-          console.info("[auth] Demo mode — OTP will not be sent via SMS. Use code: 123456");
+          // Demo fallback — no verifier or Firebase not configured
+          console.info("[auth] Demo mode — OTP not sent via SMS. Use code: 123456");
           await new Promise((r) => setTimeout(r, 900));
           set({ pendingPhone: phone });
         } catch (e: unknown) {
@@ -136,28 +138,28 @@ export const useAuthStore = create<AuthStore>()(
                 ? await createUserWithEmailAndPassword(firebaseAuth, email, password)
                 : await signInWithEmailAndPassword(firebaseAuth, email, password);
               const idToken = await credential.user.getIdToken();
-              const tokens = await exchangeFirebaseToken(idToken);
+              const { tokens, userData } = await exchangeFirebaseToken(idToken);
               const newUser: VeilUser = {
                 id: credential.user.uid,
-                name: credential.user.displayName ?? email.split("@")[0],
-                phone: "",
+                name: userData?.name ?? credential.user.displayName ?? email.split("@")[0],
+                phone: userData?.phone ?? "",
                 email,
-                bio: "",
-                avatarColor: randomAvatarColor(),
-                createdAt: Date.now(),
+                bio: userData?.bio ?? "",
+                avatarColor: userData?.avatarColor ?? randomAvatarColor(),
+                createdAt: userData?.createdAt ?? Date.now(),
                 firebaseUid: credential.user.uid,
               };
               set({ user: newUser, tokens });
               return true;
             }
           }
-          // Demo mode
+          // Demo fallback
           if (password.length < 6) {
             set({ error: "Password must be at least 6 characters" });
             return false;
           }
           await new Promise((r) => setTimeout(r, 1000));
-          const newUser: VeilUser = {
+          const demoUser: VeilUser = {
             id: Date.now().toString() + Math.random().toString(36).substr(2, 6),
             name: email.split("@")[0],
             phone: "",
@@ -166,7 +168,7 @@ export const useAuthStore = create<AuthStore>()(
             avatarColor: randomAvatarColor(),
             createdAt: Date.now(),
           };
-          set({ user: newUser });
+          set({ user: demoUser });
           return true;
         } catch (e: unknown) {
           const code = (e as { code?: string }).code ?? "";
@@ -184,16 +186,33 @@ export const useAuthStore = create<AuthStore>()(
           if (_confirmationResult) {
             // Real Firebase OTP verification
             const result = await _confirmationResult.confirm(otp);
-            const idToken = await result.user.getIdToken();
+            const firebaseUser = result.user;
+            const idToken = await firebaseUser.getIdToken();
             _confirmationResult = null;
 
-            // Try to get JWT from backend
-            const tokens = await exchangeFirebaseToken(idToken);
-            set({ tokens });
+            const { tokens, userData } = await exchangeFirebaseToken(idToken);
+
+            // If backend returned a full profile, hydrate the user now
+            if (userData?.name) {
+              const restoredUser: VeilUser = {
+                id: firebaseUser.uid,
+                name: userData.name,
+                phone: userData.phone ?? firebaseUser.phoneNumber ?? get().pendingPhone,
+                email: userData.email ?? firebaseUser.email ?? "",
+                bio: userData.bio ?? "",
+                avatarColor: userData.avatarColor ?? randomAvatarColor(),
+                createdAt: userData.createdAt ?? Date.now(),
+                firebaseUid: firebaseUser.uid,
+              };
+              set({ tokens, user: restoredUser });
+            } else {
+              // New user — tokens saved, profile collected in next step
+              set({ tokens });
+            }
             return true;
           }
 
-          // Demo mode: accept hardcoded code
+          // Demo fallback
           await new Promise((r) => setTimeout(r, 800));
           if (otp !== "123456") {
             set({ error: "Incorrect code. Please try again." });
@@ -232,14 +251,26 @@ export const useAuthStore = create<AuthStore>()(
             }
           }
 
+          // Prefer Firebase UID as the stable user ID
+          let firebaseUid: string | undefined;
+          if (isFirebaseEnvConfigured) {
+            try {
+              const { firebaseAuth } = await import("@/src/config/firebase");
+              firebaseUid = firebaseAuth?.currentUser?.uid ?? undefined;
+            } catch {
+              // ignore
+            }
+          }
+
           const newUser: VeilUser = {
-            id: Date.now().toString() + Math.random().toString(36).substr(2, 6),
+            id: firebaseUid ?? Date.now().toString() + Math.random().toString(36).substr(2, 6),
             name,
             phone: get().pendingPhone,
             email: get().pendingEmail,
             bio,
-            avatarColor: randomAvatarColor(),
+            avatarColor: get().user?.avatarColor ?? randomAvatarColor(),
             createdAt: Date.now(),
+            firebaseUid,
           };
           set({ user: newUser });
         } catch (e: unknown) {
