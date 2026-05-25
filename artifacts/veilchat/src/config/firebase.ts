@@ -11,25 +11,24 @@ const firebaseConfig = {
   appId: env.firebase.appId,
 } as const;
 
+export { firebaseConfig };
+
 function initFirebase() {
   if (!isFirebaseEnvConfigured) {
     console.warn("[firebase] Firebase is not configured — skipping initialization");
     return null;
   }
-
   try {
-    const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
-    return app;
+    return getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
   } catch (error) {
     console.error("[firebase] Initialization error:", error);
     return null;
   }
 }
 
-const firebaseApp = initFirebase();
+export const firebaseApp = initFirebase();
 
 let _auth: Auth | null = null;
-
 if (firebaseApp) {
   try {
     _auth = getAuth(firebaseApp);
@@ -39,17 +38,19 @@ if (firebaseApp) {
 }
 
 export const firebaseAuth: Auth | null = _auth;
-
 export { isFirebaseEnvConfigured as isFirebaseConfigured };
 
 export const FIREBASE_ERRORS: Record<string, string> = {
   "auth/invalid-phone-number": "Invalid phone number format.",
   "auth/too-many-requests": "Too many attempts. Please try again later.",
-  "auth/code-expired": "Verification code has expired.",
+  "auth/code-expired": "Verification code has expired. Please request a new one.",
   "auth/invalid-verification-code": "Incorrect verification code.",
   "auth/user-disabled": "This account has been disabled.",
   "auth/network-request-failed": "Network error. Check your connection.",
   "auth/session-expired": "Session has expired. Please log in again.",
   "auth/missing-phone-number": "Phone number is required.",
   "auth/quota-exceeded": "SMS quota exceeded. Try again later.",
+  "auth/captcha-check-failed": "reCAPTCHA check failed. Please try again.",
+  "auth/missing-verification-code": "Please enter the verification code.",
+  "auth/invalid-app-credential": "App credential is invalid. Please try again.",
 };

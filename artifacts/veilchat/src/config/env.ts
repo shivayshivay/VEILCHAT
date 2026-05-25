@@ -9,6 +9,8 @@ const required = (key: string): string => {
 const optional = (key: string, fallback = ""): string =>
   process.env[key] ?? fallback;
 
+const domain = optional("EXPO_PUBLIC_DOMAIN");
+
 export const env = {
   firebase: {
     apiKey: required("EXPO_PUBLIC_FIREBASE_API_KEY"),
@@ -20,13 +22,19 @@ export const env = {
   },
 
   supabase: {
-    url: required("EXPO_PUBLIC_SUPABASE_URL"),
-    anonKey: required("EXPO_PUBLIC_SUPABASE_ANON_KEY"),
+    url: optional("EXPO_PUBLIC_SUPABASE_URL", optional("SUPABASE_URL")),
+    anonKey: optional("EXPO_PUBLIC_SUPABASE_ANON_KEY", optional("SUPABASE_ANON_KEY")),
   },
 
   api: {
-    baseUrl: optional("EXPO_PUBLIC_API_URL", ""),
-    socketUrl: optional("EXPO_PUBLIC_SOCKET_URL", ""),
+    baseUrl: optional(
+      "EXPO_PUBLIC_API_URL",
+      domain ? `https://${domain}/api` : ""
+    ),
+    socketUrl: optional(
+      "EXPO_PUBLIC_SOCKET_URL",
+      domain ? `https://${domain}/api` : ""
+    ),
   },
 
   cloudinary: {

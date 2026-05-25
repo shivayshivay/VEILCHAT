@@ -1,0 +1,95 @@
+Firebase OTP authentication is not working in VEILCHAT.
+
+IMPORTANT:
+Do NOT regenerate the auth system.
+ONLY debug, verify, and fully fix the existing OTP authentication flow.
+
+==================================================
+CURRENT ISSUE
+==================================================
+
+Users are not receiving OTP codes on their phone numbers.
+
+The app already has:
+- Firebase configured
+- Expo configured
+- environment variables configured
+- Phone Authentication enabled in Firebase Console
+
+But OTP delivery/verification is failing.
+
+==================================================
+TASKS
+==================================================
+
+1. Verify Firebase initialization
+2. Verify Expo compatibility
+3. Verify Firebase Phone Authentication setup
+4. Verify recaptcha handling for Expo
+5. Verify authentication state persistence
+6. Verify OTP send flow
+7. Verify OTP verify flow
+8. Verify session restoration after app restart
+
+==================================================
+DEBUGGING REQUIREMENTS
+==================================================
+
+Check:
+- Firebase config loading
+- undefined env variables
+- invalid Firebase initialization
+- auth provider setup
+- Expo recaptcha integration
+- network/auth errors
+- Firebase quota issues
+- incorrect phone formatting
+- missing permissions
+- invalid SDK usage
+
+==================================================
+FIX REQUIREMENTS
+==================================================
+
+Implement/fix:
+- Expo-compatible Firebase phone auth
+- resend OTP timer
+- retry handling
+- proper loading states
+- proper error messages
+- verification confirmation handling
+- secure session persistence
+
+==================================================
+IMPORTANT
+==================================================
+
+Use proper Expo-compatible implementation.
+
+If using Firebase Phone Authentication in Expo:
+- use expo-firebase-recaptcha if required
+- ensure compatibility with Expo SDK version
+- ensure real-device testing support
+
+==================================================
+TESTING
+==================================================
+
+Run diagnostics for:
+- OTP sending
+- OTP verification
+- auth persistence
+- Firebase connection
+- recaptcha flow
+
+Generate a report showing:
+1. root cause of OTP failure
+2. affected files
+3. fixes applied
+4. remaining blockers (if any)
+
+==================================================
+FINAL GOAL
+==================================================
+
+The OTP login system must work reliably on real mobile devices using Firebase Phone Authentication in Expo.

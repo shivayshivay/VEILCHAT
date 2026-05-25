@@ -5,6 +5,7 @@ import { connectSocket, disconnectSocket, getSocket } from "@/lib/socket";
 
 export function useChatSocket() {
   const user = useAuthStore((s) => s.user);
+  const tokens = useAuthStore((s) => s.tokens);
   const initSocketListeners = useChatStore((s) => s.initSocketListeners);
 
   useEffect(() => {
@@ -13,14 +14,17 @@ export function useChatSocket() {
     const socket = getSocket();
     if (!socket) return;
 
-    connectSocket(user.id);
+    // Use JWT access token for socket auth, fall back to user.id for demo mode
+    const token = tokens?.accessToken ?? user.id;
+    connectSocket(token);
 
     const cleanup = initSocketListeners();
 
     return () => {
       cleanup();
+      disconnectSocket();
     };
-  }, [user, initSocketListeners]);
+  }, [user, tokens?.accessToken, initSocketListeners]);
 }
 
 export function useSocketStatus(): boolean {

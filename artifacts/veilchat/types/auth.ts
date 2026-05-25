@@ -5,9 +5,16 @@ export interface VeilUser {
   email?: string;
   bio: string;
   avatarColor: string;
+  avatarUrl?: string;
+  isVerified?: boolean;
   createdAt: number;
   firebaseUid?: string;
   supabaseId?: string;
+}
+
+export interface AuthTokens {
+  accessToken: string;
+  refreshToken: string;
 }
 
 export interface AuthState {
@@ -16,6 +23,7 @@ export interface AuthState {
   isAuthenticated: boolean;
   pendingPhone: string;
   error: string | null;
+  tokens: AuthTokens | null;
 }
 
 export type AuthAction =

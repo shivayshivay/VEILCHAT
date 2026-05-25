@@ -1,0 +1,333 @@
+You are now acting as a senior full-stack debugging engineer, backend architect, realtime systems engineer, Firebase specialist, Supabase specialist, Expo engineer, and QA automation expert for VEILCHAT.
+
+IMPORTANT:
+Do NOT regenerate the project.
+Do NOT redesign the app.
+Do NOT replace the architecture.
+
+ONLY:
+- verify
+- debug
+- connect
+- stabilize
+- optimize
+- activate production systems
+
+The project already has:
+- Firebase configured
+- Supabase configured
+- database tables created
+- environment secrets added
+- frontend architecture completed
+- backend architecture completed
+
+==================================================
+PRIMARY GOAL
+==================================================
+
+Transform VEILCHAT from partially working development mode into a fully connected production-ready realtime messaging platform.
+
+==================================================
+STEP 1 — VERIFY ENVIRONMENT CONFIGURATION
+==================================================
+
+Verify all environment variables load correctly.
+
+Check:
+- Firebase env variables
+- Supabase env variables
+- Socket URLs
+- Cloudinary keys
+- JWT secrets
+- API URLs
+
+Ensure:
+- no undefined env variables
+- no duplicated configs
+- no hardcoded secrets
+- centralized config structure
+
+Generate diagnostics for all loaded configs.
+
+==================================================
+STEP 2 — VERIFY FIREBASE INTEGRATION
+==================================================
+
+Verify:
+- Firebase initializes correctly
+- Expo compatibility works
+- Phone Authentication works
+- Email authentication works
+- Session persistence works
+- Auth state restoration works
+
+Fix:
+- OTP not sending
+- OTP verification issues
+- Expo recaptcha issues
+- auth persistence issues
+
+Implement:
+- resend OTP timer
+- loading states
+- retry handling
+- proper Firebase error handling
+
+IMPORTANT:
+Use production-safe Expo-compatible Firebase phone authentication.
+
+==================================================
+STEP 3 — VERIFY SUPABASE CONNECTION
+==================================================
+
+Verify:
+- Supabase connection active
+- database reachable
+- all tables accessible
+- Drizzle ORM mappings valid
+- queries functioning
+- realtime subscriptions functioning
+
+Check tables:
+- users
+- chats
+- chat_members
+- messages
+- message_status
+- sessions
+- devices
+- attachments
+
+Fix:
+- failing queries
+- schema mismatches
+- broken inserts
+- missing relationships
+- invalid realtime subscriptions
+
+==================================================
+STEP 4 — REMOVE MOCK/FALLBACK SYSTEMS
+==================================================
+
+Audit the app and remove:
+- fake auto replies
+- mock chat systems
+- placeholder data
+- development-only fallback messaging
+
+Replace everything with:
+- real Socket.IO
+- real Supabase persistence
+- production realtime architecture
+
+==================================================
+STEP 5 — VERIFY REALTIME MESSAGING
+==================================================
+
+Verify:
+- Socket.IO authenticated connection
+- message delivery
+- realtime synchronization
+- typing indicators
+- read receipts
+- delivery states
+- reconnect handling
+- foreground/background recovery
+- duplicate event prevention
+- offline queue synchronization
+
+Fix:
+- socket leaks
+- reconnect issues
+- stale listeners
+- duplicated messages
+- failed optimistic updates
+
+==================================================
+STEP 6 — VERIFY MESSAGE PERSISTENCE
+==================================================
+
+Ensure:
+- all messages save to Supabase
+- all chats persist correctly
+- conversation history loads correctly
+- pagination works
+- attachments persist correctly
+- deleted messages sync properly
+
+==================================================
+STEP 7 — VERIFY MEDIA INFRASTRUCTURE
+==================================================
+
+Verify Cloudinary integration.
+
+Check:
+- image upload
+- video upload
+- voice notes
+- previews
+- upload validation
+- compression
+- retry handling
+- secure uploads
+
+Fix:
+- broken uploads
+- invalid URLs
+- rendering failures
+- upload crashes
+
+==================================================
+STEP 8 — VERIFY ADAPTIVE ENHANCEMENT SYSTEM
+==================================================
+
+Complete and stabilize the hidden encrypted image messaging system.
+
+IMPORTANT:
+Public UI labels should remain:
+- Adaptive Enhancement
+- Smart Enhancement
+- AI Enhancement
+
+NOT:
+- steganography
+- hidden messaging
+
+Verify:
+- encrypted payload embedding
+- payload extraction
+- image integrity
+- secure key storage
+- hidden message persistence
+- floating scanner tool
+- upload/download consistency
+
+Fix:
+- extraction failures
+- image corruption
+- payload loss
+- key persistence issues
+
+==================================================
+STEP 9 — VERIFY UI/UX QUALITY
+==================================================
+
+Audit:
+- spacing consistency
+- dark theme consistency
+- alignment issues
+- animation smoothness
+- keyboard handling
+- responsiveness
+- navigation stability
+- gesture smoothness
+
+Fix:
+- laggy transitions
+- duplicated components
+- inline styles
+- broken layouts
+- inconsistent UI patterns
+
+Ensure:
+- cinematic feel
+- premium quality
+- smooth interactions
+- modern messaging app polish
+
+==================================================
+STEP 10 — VERIFY SECURITY
+==================================================
+
+Audit:
+- JWT handling
+- Firebase token verification
+- Supabase security
+- upload validation
+- API validation
+- socket authentication
+- secure local storage
+- environment variable safety
+
+Fix:
+- insecure defaults
+- validation gaps
+- missing middleware
+- exposed secrets
+
+==================================================
+STEP 11 — VERIFY PERFORMANCE
+==================================================
+
+Analyze:
+- rerenders
+- memory leaks
+- socket cleanup
+- animation performance
+- image performance
+- navigation performance
+- large component trees
+
+Optimize:
+- unnecessary renders
+- expensive hooks
+- stale listeners
+- oversized payloads
+- inefficient subscriptions
+
+==================================================
+STEP 12 — RUN FULL AUTOMATED DIAGNOSTICS
+==================================================
+
+Generate a complete diagnostics report including:
+
+1. WORKING FEATURES
+2. BROKEN FEATURES
+3. PARTIALLY IMPLEMENTED FEATURES
+4. DATABASE ISSUES
+5. FIREBASE ISSUES
+6. SOCKET ISSUES
+7. MEDIA ISSUES
+8. SECURITY RISKS
+9. PERFORMANCE ISSUES
+10. UI/UX ISSUES
+
+For every issue:
+- explain root cause
+- identify affected files
+- suggest exact fix
+- assign severity level
+
+==================================================
+STEP 13 — AUTO FIX SIMPLE ISSUES
+==================================================
+
+Automatically fix:
+- import issues
+- TypeScript issues
+- duplicate logic
+- stale hooks
+- socket cleanup issues
+- invalid configs
+- broken listeners
+- navigation conflicts
+- minor UI inconsistencies
+
+Do NOT unnecessarily rewrite stable architecture.
+
+==================================================
+FINAL GOAL
+==================================================
+
+VEILCHAT must become:
+- stable
+- scalable
+- secure
+- realtime
+- production-ready
+- smooth
+- polished
+- fully connected
+
+The final experience should feel like:
+a premium futuristic WhatsApp + Signal hybrid with invisible next-generation privacy systems.

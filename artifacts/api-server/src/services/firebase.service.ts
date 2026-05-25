@@ -1,30 +1,34 @@
+import type { App } from "firebase-admin/app";
 import { env } from "../config/env.js";
 import { logger } from "../lib/logger.js";
 
+let _app: App | null = null;
 let _initialized = false;
 
-function getFirebaseApp() {
+async function getFirebaseApp(): Promise<App | null> {
   if (!env.FIREBASE_PROJECT_ID || !env.FIREBASE_CLIENT_EMAIL || !env.FIREBASE_PRIVATE_KEY) {
     return null;
   }
 
   if (!_initialized) {
-    const { initializeApp, getApps, cert } = require("firebase-admin/app");
+    const { initializeApp, getApps, cert } = await import("firebase-admin/app");
     if (getApps().length === 0) {
-      initializeApp({
+      _app = initializeApp({
         credential: cert({
           projectId: env.FIREBASE_PROJECT_ID,
           clientEmail: env.FIREBASE_CLIENT_EMAIL,
           privateKey: env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, "\n"),
         }),
       });
-      _initialized = true;
       logger.info("Firebase Admin initialized");
+    } else {
+      const { getApp } = await import("firebase-admin/app");
+      _app = getApp();
     }
+    _initialized = true;
   }
 
-  const { getApp } = require("firebase-admin/app");
-  return getApp();
+  return _app;
 }
 
 export function isFirebaseConfigured(): boolean {
@@ -36,10 +40,10 @@ export function isFirebaseConfigured(): boolean {
 }
 
 export async function verifyFirebaseIdToken(idToken: string) {
-  const app = getFirebaseApp();
+  const app = await getFirebaseApp();
   if (!app) throw new Error("Firebase Admin is not configured");
 
-  const { getAuth } = require("firebase-admin/auth");
+  const { getAuth } = await import("firebase-admin/auth");
   return getAuth(app).verifyIdToken(idToken);
 }
 
@@ -48,10 +52,10 @@ export async function sendPushNotification(
   notification: { title: string; body: string },
   data?: Record<string, string>
 ) {
-  const app = getFirebaseApp();
+  const app = await getFirebaseApp();
   if (!app) throw new Error("Firebase Admin is not configured");
 
-  const { getMessaging } = require("firebase-admin/messaging");
+  const { getMessaging } = await import("firebase-admin/messaging");
   return getMessaging(app).send({
     token: fcmToken,
     notification,
