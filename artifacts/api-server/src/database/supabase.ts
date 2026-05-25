@@ -5,23 +5,27 @@ import { logger } from "../lib/logger.js";
 let _client: SupabaseClient | null = null;
 
 export function getSupabaseClient(): SupabaseClient | null {
-  if (!env.SUPABASE_URL || !env.SUPABASE_SERVICE_ROLE_KEY) return null;
+  const url = env.SUPABASE_URL;
+  const key = env.SUPABASE_SERVICE_ROLE_KEY ?? env.SUPABASE_ANON_KEY;
+
+  if (!url || !key) return null;
 
   if (!_client) {
-    _client = createClient(env.SUPABASE_URL, env.SUPABASE_SERVICE_ROLE_KEY, {
+    _client = createClient(url, key, {
       auth: {
         autoRefreshToken: false,
         persistSession: false,
       },
     });
-    logger.info("Supabase client initialized");
+    const keyType = env.SUPABASE_SERVICE_ROLE_KEY ? "service_role" : "anon";
+    logger.info({ keyType }, "Supabase client initialized");
   }
 
   return _client;
 }
 
 export function isSupabaseConfigured(): boolean {
-  return !!(env.SUPABASE_URL && env.SUPABASE_SERVICE_ROLE_KEY);
+  return !!(env.SUPABASE_URL && (env.SUPABASE_SERVICE_ROLE_KEY || env.SUPABASE_ANON_KEY));
 }
 
 export async function supabaseHealthCheck(): Promise<boolean> {

@@ -9,6 +9,8 @@ import type {
   SocketData,
 } from "../../types/socket.js";
 import { logger } from "../../lib/logger.js";
+import { registerMessageHandlers, joinUserConversationRooms } from "./messages.js";
+import { getSupabaseClient } from "../../database/supabase.js";
 
 export type AuthSocket = Socket<
   ClientToServerEvents,
@@ -51,9 +53,32 @@ export function authenticateSocket(
 
 export function registerConnectionHandlers(socket: AuthSocket): void {
   const { userId } = socket.data;
+  const client = getSupabaseClient();
+
+  // Join user's conversation rooms
+  joinUserConversationRooms(socket);
+
+  // Update online presence
+  if (client) {
+    void client
+      .from("users")
+      .update({ is_online: true, last_seen: new Date().toISOString() })
+      .eq("id", userId);
+  }
+
+  // Register message send/ack handlers
+  registerMessageHandlers(socket);
 
   socket.on("disconnect", (reason) => {
     logger.info({ socketId: socket.id, userId, reason }, "Socket disconnected");
+
+    // Update offline presence
+    if (client) {
+      void client
+        .from("users")
+        .update({ is_online: false, last_seen: new Date().toISOString() })
+        .eq("id", userId);
+    }
   });
 
   socket.on("error", (err) => {
@@ -74,11 +99,25 @@ export function registerConnectionHandlers(socket: AuthSocket): void {
     });
   });
 
-  socket.on("message:read", (data) => {
+  socket.on("message:read", async (data) => {
+    // Broadcast read receipt to conversation
     socket.to(`conversation:${data.conversationId}`).emit("message:read", {
       conversationId: data.conversationId,
       messageId: data.messageId,
       status: "read",
     });
+
+    // Persist read status to Supabase
+    if (client) {
+      try {
+        await client
+          .from("messages")
+          .update({ status: "read" })
+          .eq("id", data.messageId)
+          .neq("sender_id", userId);
+      } catch {
+        // Non-critical — swallow error
+      }
+    }
   });
 }

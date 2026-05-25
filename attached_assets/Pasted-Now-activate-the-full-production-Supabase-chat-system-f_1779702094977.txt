@@ -1,0 +1,144 @@
+Now activate the full production Supabase chat system for VEILCHAT.
+
+IMPORTANT:
+Authentication is now working with:
+- Firebase OTP
+- JWT exchange
+- session persistence
+- Socket.IO auth
+
+Now replace all remaining mock chat systems with real production Supabase realtime infrastructure.
+
+==================================================
+GOAL
+==================================================
+
+Transform VEILCHAT from mock conversations into a fully realtime persistent messaging platform.
+
+==================================================
+TASKS
+==================================================
+
+1. Remove all mock seed chat data
+2. Remove fake auto replies
+3. Remove placeholder conversations
+4. Replace mock chatStore logic with real Supabase queries
+5. Connect chats to authenticated users
+6. Enable realtime message synchronization
+7. Enable persistent conversation history
+8. Enable realtime conversation updates
+9. Enable live contacts system
+10. Enable message persistence across app restarts
+
+==================================================
+SUPABASE INTEGRATION
+==================================================
+
+Use:
+- Supabase PostgreSQL
+- realtime subscriptions
+- existing JWT auth
+- existing Drizzle schema
+
+Verify:
+- users table
+- chats table
+- chat_members
+- messages
+- message_status
+- attachments
+
+==================================================
+REALTIME FEATURES
+==================================================
+
+Implement:
+- live incoming messages
+- live outgoing messages
+- typing indicators
+- online/offline presence
+- read receipts
+- delivery states
+- reconnect synchronization
+- offline queue replay
+
+==================================================
+CHAT STORE REFACTOR
+==================================================
+
+Refactor:
+chatStore.ts
+
+Requirements:
+- remove local fake state logic
+- connect to Supabase persistence
+- sync with Socket.IO events
+- use optimistic updates safely
+- prevent duplicate messages
+- support realtime updates
+
+==================================================
+CONTACTS SYSTEM
+==================================================
+
+Implement real contacts flow:
+
+- searchable users
+- add/remove contacts
+- recent chats
+- online indicators
+- profile synchronization
+
+==================================================
+PERFORMANCE
+==================================================
+
+Optimize:
+- message pagination
+- lazy loading
+- subscription cleanup
+- rerenders
+- large chat histories
+- memory usage
+
+==================================================
+SECURITY
+==================================================
+
+Ensure:
+- authenticated queries only
+- secure message ownership
+- proper row filtering
+- secure realtime subscriptions
+
+==================================================
+TESTING
+==================================================
+
+Run diagnostics for:
+1. realtime messaging
+2. persistence
+3. reconnect recovery
+4. offline sync
+5. duplicate prevention
+6. message ordering
+7. read receipt synchronization
+8. typing synchronization
+
+Generate a full report:
+- working systems
+- broken systems
+- remaining blockers
+- affected files
+- fixes applied
+
+==================================================
+FINAL GOAL
+==================================================
+
+VEILCHAT should now behave like a real modern messaging platform with:
+- persistent realtime conversations
+- authenticated messaging
+- scalable architecture
+- production-ready synchronization
+- premium messaging experience

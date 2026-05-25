@@ -21,9 +21,16 @@ import Animated, {
 } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
-import { FirebaseRecaptchaVerifierModal } from "expo-firebase-recaptcha";
 import { useAuthStore } from "@/store/authStore";
 import { firebaseConfig, isFirebaseConfigured } from "@/src/config/firebase";
+
+// FirebaseRecaptchaVerifierModal — native only
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+let FirebaseRecaptchaVerifierModal: any = null;
+if (Platform.OS !== "web") {
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  FirebaseRecaptchaVerifierModal = require("expo-firebase-recaptcha").FirebaseRecaptchaVerifierModal;
+}
 
 const OTP_LENGTH = 6;
 const RESEND_SECONDS = 60;
@@ -39,7 +46,8 @@ export default function OtpScreen() {
   const [resending, setResending] = useState(false);
 
   const inputRefs = useRef<(TextInput | null)[]>(Array(OTP_LENGTH).fill(null));
-  const recaptchaVerifierRef = useRef<FirebaseRecaptchaVerifierModal>(null);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const recaptchaVerifierRef = useRef<any>(null);
   const shakeX = useSharedValue(0);
   const successScale = useSharedValue(1);
 
@@ -176,13 +184,15 @@ export default function OtpScreen() {
 
   return (
     <>
-      <FirebaseRecaptchaVerifierModal
-        ref={recaptchaVerifierRef}
-        firebaseConfig={firebaseConfig}
-        attemptInvisibleVerification
-        title="Verify you're human"
-        cancelLabel="Cancel"
-      />
+      {FirebaseRecaptchaVerifierModal && Platform.OS !== "web" && (
+        <FirebaseRecaptchaVerifierModal
+          ref={recaptchaVerifierRef}
+          firebaseConfig={firebaseConfig}
+          attemptInvisibleVerification
+          title="Verify you're human"
+          cancelLabel="Cancel"
+        />
+      )}
 
       <KeyboardAvoidingView
         style={styles.root}

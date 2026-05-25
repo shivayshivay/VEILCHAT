@@ -12,9 +12,17 @@ import {
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
-import { FirebaseRecaptchaVerifierModal } from "expo-firebase-recaptcha";
 import { useAuthStore } from "@/store/authStore";
 import { firebaseConfig, isFirebaseConfigured } from "@/src/config/firebase";
+
+// FirebaseRecaptchaVerifierModal uses react-native-webview, native only
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+let FirebaseRecaptchaVerifierModal: any = null;
+if (Platform.OS !== "web") {
+  // Dynamic require avoids web bundler pulling in react-native-webview
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  FirebaseRecaptchaVerifierModal = require("expo-firebase-recaptcha").FirebaseRecaptchaVerifierModal;
+}
 
 const COUNTRY_CODES = [
   { flag: "🇺🇸", code: "+1", label: "US" },
@@ -50,13 +58,15 @@ export default function PhoneScreen() {
 
   return (
     <>
-      <FirebaseRecaptchaVerifierModal
-        ref={recaptchaVerifierRef}
-        firebaseConfig={firebaseConfig}
-        attemptInvisibleVerification
-        title="Verify you're human"
-        cancelLabel="Cancel"
-      />
+      {FirebaseRecaptchaVerifierModal && Platform.OS !== "web" && (
+        <FirebaseRecaptchaVerifierModal
+          ref={recaptchaVerifierRef}
+          firebaseConfig={firebaseConfig}
+          attemptInvisibleVerification
+          title="Verify you're human"
+          cancelLabel="Cancel"
+        />
+      )}
 
       <KeyboardAvoidingView
         style={[styles.root]}
