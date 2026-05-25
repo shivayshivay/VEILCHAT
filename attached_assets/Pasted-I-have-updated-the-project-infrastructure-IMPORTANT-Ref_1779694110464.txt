@@ -1,0 +1,95 @@
+I have updated the project infrastructure.
+
+IMPORTANT:
+Refactor the entire VEILCHAT project to use the new Firebase and Supabase configuration.
+
+==================================================
+NEW FIREBASE CONFIG
+==================================================
+
+Use Expo environment variables only.
+
+Environment variables already added:
+
+EXPO_PUBLIC_FIREBASE_API_KEY
+EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN
+EXPO_PUBLIC_FIREBASE_PROJECT_ID
+EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET
+EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID
+EXPO_PUBLIC_FIREBASE_APP_ID
+
+==================================================
+TASKS
+==================================================
+
+1. Remove old Firebase initialization logic
+2. Remove duplicate Firebase configs
+3. Create centralized config:
+   src/config/firebase.ts
+
+4. Use Firebase Modular SDK
+5. Ensure Expo-compatible setup
+6. Refactor all auth-related imports
+7. Ensure Firebase initialization happens only once
+8. Verify compatibility with:
+   - Expo
+   - React Native
+   - Firebase Authentication
+
+==================================================
+SUPABASE
+==================================================
+
+Also refactor the app to use the updated Supabase project configuration.
+
+Create centralized config:
+src/config/supabase.ts
+
+Requirements:
+- remove old Supabase references
+- centralize environment handling
+- production-ready structure
+- proper TypeScript typing
+- scalable architecture
+
+==================================================
+ENVIRONMENT CONFIG
+==================================================
+
+Create:
+src/config/env.ts
+
+Centralize:
+- Firebase env variables
+- Supabase env variables
+- API URLs
+- socket endpoints
+- Cloudinary configs
+
+==================================================
+IMPORTANT
+==================================================
+
+Refactor existing services to use:
+- centralized Firebase config
+- centralized Supabase config
+- centralized env config
+
+Remove:
+- duplicate initialization
+- hardcoded credentials
+- outdated imports
+- repeated config logic
+
+==================================================
+AFTER REFACTOR
+==================================================
+
+Generate:
+1. Firebase connection test
+2. Supabase connection test
+3. Auth initialization verification
+4. Error-safe initialization handling
+
+The final structure should be:
+clean, scalable, production-ready, and modular.

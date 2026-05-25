@@ -1,15 +1,14 @@
 import { io, Socket } from "socket.io-client";
+import { env, isSocketEnvConfigured } from "../src/config/env";
 
-const SOCKET_URL = process.env.EXPO_PUBLIC_SOCKET_URL ?? "";
-
-export const isSocketConfigured = SOCKET_URL.length > 0;
+export { isSocketEnvConfigured as isSocketConfigured };
 
 let _socket: Socket | null = null;
 
 export function getSocket(): Socket | null {
-  if (!isSocketConfigured) return null;
+  if (!isSocketEnvConfigured) return null;
   if (!_socket) {
-    _socket = io(SOCKET_URL, {
+    _socket = io(env.api.socketUrl, {
       autoConnect: false,
       transports: ["websocket"],
       reconnection: true,
