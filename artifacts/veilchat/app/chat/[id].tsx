@@ -21,6 +21,7 @@ import { ChatBubble } from "@/components/chat/ChatBubble";
 import { MessageInput } from "@/components/chat/MessageInput";
 import { TypingIndicator } from "@/components/chat/TypingIndicator";
 import { ReactionPicker } from "@/components/chat/ReactionPicker";
+import { AdaptiveScanner } from "@/components/chat/AdaptiveScanner";
 import { useAuthStore } from "@/store/authStore";
 import { useChatStore } from "@/store/chatStore";
 import { useUiStore } from "@/store/uiStore";
@@ -47,6 +48,7 @@ export default function ChatScreen() {
   const flatRef = useRef<FlatList<Message>>(null);
   const [replyTarget, setReplyTarget] = useState<Message | null>(null);
   const [reactTarget, setReactTarget] = useState<Message | null>(null);
+  const [scanUrl, setScanUrl] = useState<string | null>(null);
 
   const topPad = insets.top + (Platform.OS === "web" ? 67 : 0);
 
@@ -90,6 +92,10 @@ export default function ChatScreen() {
     [user, id, addReaction]
   );
 
+  const handleScan = useCallback((mediaUrl: string) => {
+    setScanUrl(mediaUrl);
+  }, []);
+
   if (!contact) {
     return (
       <View style={[styles.root, { paddingTop: topPad + 20 }]}>
@@ -129,6 +135,7 @@ export default function ChatScreen() {
               onReply={() => setReplyTarget(item)}
               onLongPress={() => setReactTarget(item)}
               onReactionPress={(emoji) => handleReactionPress(item.id, emoji)}
+              onScan={item.mediaUrl ? () => handleScan(item.mediaUrl!) : undefined}
             />
           )}
           inverted
@@ -166,6 +173,12 @@ export default function ChatScreen() {
         visible={reactTarget !== null}
         onReact={handleReact}
         onClose={() => setReactTarget(null)}
+      />
+
+      <AdaptiveScanner
+        visible={scanUrl !== null}
+        imageUrl={scanUrl ?? ""}
+        onClose={() => setScanUrl(null)}
       />
     </View>
   );

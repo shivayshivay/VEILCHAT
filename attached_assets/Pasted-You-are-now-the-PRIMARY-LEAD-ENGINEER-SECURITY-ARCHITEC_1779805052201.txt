@@ -1,0 +1,481 @@
+You are now the PRIMARY LEAD ENGINEER, SECURITY ARCHITECT, REALTIME SYSTEMS ENGINEER, MOBILE ENGINEER, FIREBASE SPECIALIST, SUPABASE SPECIALIST, UI/UX ENGINEER, PERFORMANCE ENGINEER, QA ENGINEER, AND PRODUCTION DEBUGGING ENGINEER for the VEILCHAT project.
+
+==================================================
+PROJECT NAME
+==================================================
+
+VEILCHAT
+
+A futuristic premium private messaging platform inspired by:
+- WhatsApp
+- Signal
+- Telegram
+- iMessage
+
+BUT with:
+- military-grade privacy
+- invisible hidden messaging
+- adaptive enhancement image technology
+- realtime infrastructure
+- cinematic dark UI
+- premium animations
+- secure encrypted communication
+
+==================================================
+CRITICAL RULES
+==================================================
+
+DO NOT:
+- regenerate the whole project
+- destroy existing architecture
+- replace stable systems unnecessarily
+- create mock/fake systems
+- remove existing UI quality
+- downgrade premium feel
+
+ONLY:
+- debug
+- connect
+- stabilize
+- optimize
+- secure
+- productionize
+- complete missing systems
+
+==================================================
+CURRENT PROJECT STATUS
+==================================================
+
+Already configured:
+✅ Expo React Native
+✅ Expo Router
+✅ Firebase
+✅ Supabase
+✅ Socket.IO
+✅ Zustand
+✅ Tailwind / NativeWind
+✅ Drizzle ORM
+✅ JWT auth
+✅ Dark UI system
+✅ Realtime architecture
+✅ Firebase OTP auth partially working
+✅ Realtime socket structure exists
+✅ Adaptive Enhancement system partially exists
+✅ Production backend structure exists
+
+==================================================
+CURRENT CRITICAL ERROR
+==================================================
+
+ERROR:
+Firebase: No Firebase App '[DEFAULT]' has been created - call Firebase App.initializeApp()
+
+CAUSE:
+expo-firebase-recaptcha is trying to access Firebase app before initializeApp() completes.
+
+==================================================
+TOP PRIORITY TASK
+==================================================
+
+FULLY FIX FIREBASE INITIALIZATION.
+
+==================================================
+FIREBASE FIX REQUIREMENTS
+==================================================
+
+1. Centralize Firebase initialization
+2. Ensure initializeApp(firebaseConfig) runs ONLY ONCE
+3. Prevent duplicate initialization
+4. Use getApps() check before initializeApp()
+5. Export:
+   - app
+   - auth
+   - firebaseConfig
+6. Ensure RecaptchaVerifier uses initialized app
+7. Ensure firebase app loads BEFORE recaptcha modal mounts
+8. Ensure compatibility with:
+   - Expo SDK 54
+   - Firebase v12
+   - Expo Go
+   - Web preview
+   - React Native
+
+==================================================
+REQUIRED FIREBASE STRUCTURE
+==================================================
+
+Use modern modular Firebase architecture.
+
+Correct structure:
+
+if (!getApps().length) {
+  initializeApp(firebaseConfig)
+}
+
+Then:
+- export auth
+- export initialized app
+- ensure recaptcha imports same instance
+
+==================================================
+AUTHENTICATION SYSTEM
+==================================================
+
+Implement FULL production-ready auth flow.
+
+Required:
+✅ Phone OTP login
+✅ Email login
+✅ Session persistence
+✅ Auto-login
+✅ Logout
+✅ JWT exchange
+✅ Firebase token verification
+✅ Socket auth integration
+
+==================================================
+OTP FLOW
+==================================================
+
+Required flow:
+
+Enter phone
+→ reCAPTCHA
+→ Firebase SMS OTP
+→ OTP verify
+→ Firebase ID token
+→ backend JWT exchange
+→ persist session
+→ connect socket
+→ navigate to app
+
+==================================================
+OTP REQUIREMENTS
+==================================================
+
+Fix:
+- OTP not received
+- recaptcha crashes
+- Firebase initialization issues
+- invalid verifier states
+- duplicate auth calls
+- Expo compatibility issues
+
+Implement:
+- resend timer
+- loading states
+- retry handling
+- network handling
+- premium OTP input UI
+- proper error states
+
+==================================================
+SUPABASE REQUIREMENTS
+==================================================
+
+Verify and stabilize:
+- Supabase connection
+- realtime subscriptions
+- row persistence
+- authenticated queries
+- message storage
+- contacts system
+- conversation system
+- message pagination
+
+Tables:
+- users
+- chats
+- chat_members
+- messages
+- message_status
+- sessions
+- devices
+- attachments
+
+==================================================
+REMOVE ALL MOCK SYSTEMS
+==================================================
+
+REMOVE:
+- fake auto replies
+- fake chat messages
+- demo-only placeholders
+- temporary mock systems
+
+Replace with:
+- real Supabase persistence
+- real Socket.IO events
+- real realtime messaging
+
+==================================================
+REALTIME CHAT REQUIREMENTS
+==================================================
+
+Implement:
+✅ live messages
+✅ delivery states
+✅ read receipts
+✅ typing indicators
+✅ reconnect recovery
+✅ offline sync
+✅ optimistic updates
+✅ duplicate prevention
+✅ pagination
+✅ online presence
+
+==================================================
+ADAPTIVE ENHANCEMENT SYSTEM
+==================================================
+
+THIS FEATURE IS CRITICAL.
+
+Public UI naming MUST remain:
+- Adaptive Enhancement
+- Smart Enhancement
+- AI Enhancement
+
+NEVER expose:
+- steganography
+- hidden messaging
+- secret image messaging
+
+==================================================
+ADAPTIVE ENHANCEMENT GOAL
+==================================================
+
+Users can:
+- send normal image
+OR
+- enable Adaptive Enhancement
+
+When enabled:
+- hidden encrypted payload embeds inside image
+- image visually remains normal
+- hidden message can be decoded ONLY with secret key
+
+==================================================
+ADAPTIVE ENHANCEMENT REQUIREMENTS
+==================================================
+
+Implement:
+✅ hidden encrypted payload embedding
+✅ payload extraction
+✅ image integrity preservation
+✅ invisible embedding
+✅ floating movable scanner tool
+✅ secure local key storage
+✅ key reset flow
+✅ hidden payload persistence
+✅ upload/download compatibility
+✅ Cloudinary compatibility
+✅ realtime chat compatibility
+
+==================================================
+SECURITY REQUIREMENTS
+==================================================
+
+Ensure:
+- AES encryption
+- secure local storage
+- hidden payload encryption
+- payload invisible to metadata scanners
+- no obvious indicators in UI
+- no suspicious labels/icons
+- hidden scanner only appears contextually
+
+==================================================
+ANTI-DETECTION UX
+==================================================
+
+VERY IMPORTANT.
+
+The Adaptive Enhancement feature must look like:
+- image quality enhancement
+- AI enhancement
+- smart image optimization
+
+NOT like hidden messaging.
+
+Implement:
+- subtle icons
+- neutral terminology
+- hidden activation flow
+- contextual floating scanner
+- premium non-suspicious UX
+
+==================================================
+MEDIA SYSTEM
+==================================================
+
+Implement:
+✅ image uploads
+✅ video uploads
+✅ voice notes
+✅ previews
+✅ compression
+✅ upload progress
+✅ secure uploads
+✅ Cloudinary integration
+
+==================================================
+CALLING SYSTEM
+==================================================
+
+Implement architecture for:
+✅ voice calls
+✅ video calls
+✅ call UI
+✅ mute
+✅ speaker
+✅ camera switching
+✅ reconnect handling
+
+Use:
+- WebRTC
+- Socket signaling
+
+==================================================
+UI/UX REQUIREMENTS
+==================================================
+
+VEILCHAT must feel:
+- futuristic
+- cinematic
+- premium
+- smooth
+- ultra-modern
+
+Style:
+- dark AMOLED UI
+- neon cyan accents
+- glassmorphism
+- subtle blur
+- smooth animations
+- premium typography
+- floating UI
+- modern spacing
+
+==================================================
+REQUIRED SCREENS
+==================================================
+
+Implement/polish:
+✅ splash screen
+✅ onboarding
+✅ phone login
+✅ OTP screen
+✅ profile setup
+✅ home/chat list
+✅ chat screen
+✅ status screen
+✅ calls screen
+✅ contacts
+✅ profile
+✅ settings
+✅ media viewer
+
+==================================================
+CHAT SCREEN FEATURES
+==================================================
+
+Implement:
+✅ replies
+✅ reactions
+✅ swipe gestures
+✅ media preview
+✅ voice notes
+✅ typing animation
+✅ read states
+✅ date grouping
+✅ animated bubbles
+✅ adaptive enhancement scan UI
+
+==================================================
+SETTINGS FEATURES
+==================================================
+
+Implement:
+✅ privacy controls
+✅ notification controls
+✅ adaptive enhancement settings
+✅ key reset
+✅ account management
+✅ logout
+✅ theme controls
+✅ security controls
+
+==================================================
+PERFORMANCE REQUIREMENTS
+==================================================
+
+Optimize:
+- rerenders
+- memory leaks
+- socket cleanup
+- image loading
+- animation performance
+- navigation performance
+- subscription cleanup
+
+==================================================
+SECURITY REQUIREMENTS
+==================================================
+
+Audit:
+- JWT handling
+- Firebase token verification
+- upload validation
+- API validation
+- secure storage
+- Socket.IO auth
+- Supabase row security
+
+==================================================
+TESTING REQUIREMENTS
+==================================================
+
+Run FULL diagnostics.
+
+Generate report:
+1. WORKING FEATURES
+2. BROKEN FEATURES
+3. SECURITY RISKS
+4. PERFORMANCE ISSUES
+5. DATABASE ISSUES
+6. FIREBASE ISSUES
+7. SOCKET ISSUES
+8. UI/UX ISSUES
+9. ADAPTIVE ENHANCEMENT ISSUES
+10. REMAINING BLOCKERS
+
+==================================================
+AUTO FIX REQUIREMENTS
+==================================================
+
+Automatically fix:
+- import issues
+- Firebase init issues
+- TypeScript issues
+- stale hooks
+- invalid configs
+- broken listeners
+- duplicate socket events
+- UI inconsistencies
+
+==================================================
+FINAL GOAL
+==================================================
+
+VEILCHAT must become:
+- stable
+- secure
+- realtime
+- production-ready
+- scalable
+- cinematic
+- futuristic
+- premium quality
+
+The final app should feel like:
+a next-generation WhatsApp + Signal hybrid with invisible military-grade privacy systems and futuristic UI.

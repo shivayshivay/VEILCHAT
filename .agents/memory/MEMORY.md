@@ -1,0 +1,3 @@
+- [Expo native module resolution](expo-native-modules.md) — expo-secure-store can't resolve via pnpm workspace symlinks; use AsyncStorage as cross-platform fallback
+- [Steganography image hosting](stego-image-hosting.md) — Cloudinary re-encodes PNGs and destroys LSB data; use Supabase Storage or data URIs for stego images
+- [Sharp in API server](sharp-api-server.md) — sharp is already in the esbuild external list in build.mjs; no config changes needed to use it

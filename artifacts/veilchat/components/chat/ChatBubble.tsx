@@ -96,6 +96,7 @@ interface Props {
   onReply: () => void;
   onLongPress: () => void;
   onReactionPress: (emoji: string) => void;
+  onScan?: () => void;
 }
 
 const REPLY_THRESHOLD = 42;
@@ -108,6 +109,7 @@ export function ChatBubble({
   onReply,
   onLongPress,
   onReactionPress,
+  onScan,
 }: Props) {
   const translateX = useSharedValue(0);
   const replyIconScale = useSharedValue(0);
@@ -179,13 +181,25 @@ export function ChatBubble({
 
               {/* Media attachment */}
               {message.mediaUrl ? (
-                <MediaMessage
-                  mediaUrl={message.mediaUrl}
-                  type={message.type}
-                  fileName={message.fileName}
-                  fileSize={message.fileSize}
-                  isMine={isMine}
-                />
+                <View style={styles.mediaWrap}>
+                  <MediaMessage
+                    mediaUrl={message.mediaUrl}
+                    type={message.type}
+                    fileName={message.fileName}
+                    fileSize={message.fileSize}
+                    isMine={isMine}
+                  />
+                  {/* Smart Enhancement scan button */}
+                  {message.type === "image" && onScan ? (
+                    <Pressable
+                      onPress={onScan}
+                      style={styles.scanBtn}
+                      hitSlop={4}
+                    >
+                      <Text style={styles.scanBtnText}>✦</Text>
+                    </Pressable>
+                  ) : null}
+                </View>
               ) : null}
 
               {/* Text */}
@@ -253,6 +267,21 @@ const styles = StyleSheet.create({
   bubbleShapeLeft: { borderBottomLeftRadius: 4 },
   bubbleShapeRight: { borderBottomRightRadius: 4 },
   bubbleOptimistic: { opacity: 0.75 },
+  mediaWrap: { position: "relative" },
+  scanBtn: {
+    position: "absolute",
+    top: 6,
+    right: 6,
+    width: 26,
+    height: 26,
+    borderRadius: 13,
+    backgroundColor: "rgba(0,0,0,0.55)",
+    alignItems: "center",
+    justifyContent: "center",
+    borderWidth: 1,
+    borderColor: "rgba(0,245,212,0.4)",
+  },
+  scanBtnText: { fontSize: 12, color: "#00F5D4" },
   replyQuote: {
     borderLeftWidth: 3,
     paddingLeft: 8,
