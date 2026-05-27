@@ -12,19 +12,23 @@ import Animated, {
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 
+const isWeb = Platform.OS === "web";
+
 export default function LoginScreen() {
   const insets = useSafeAreaInsets();
-  const topPad = insets.top + (Platform.OS === "web" ? 67 : 0);
-  const botPad = Math.max(insets.bottom, Platform.OS === "web" ? 34 : 24);
+  const topPad = insets.top + (isWeb ? 67 : 0);
+  const botPad = Math.max(insets.bottom, isWeb ? 34 : 24);
 
-  const logoOpacity = useSharedValue(0);
-  const logoY = useSharedValue(-20);
-  const card1Opacity = useSharedValue(0);
-  const card1Y = useSharedValue(30);
-  const card2Opacity = useSharedValue(0);
-  const card2Y = useSharedValue(30);
+  // On web, start at final values so content is immediately visible
+  const logoOpacity = useSharedValue(isWeb ? 1 : 0);
+  const logoY = useSharedValue(isWeb ? 0 : -20);
+  const card1Opacity = useSharedValue(isWeb ? 1 : 0);
+  const card1Y = useSharedValue(isWeb ? 0 : 30);
+  const card2Opacity = useSharedValue(isWeb ? 1 : 0);
+  const card2Y = useSharedValue(isWeb ? 0 : 30);
 
   React.useEffect(() => {
+    if (isWeb) return; // Already at final values on web
     logoOpacity.value = withDelay(100, withTiming(1, { duration: 500 }));
     logoY.value = withDelay(100, withSpring(0, { damping: 14 }));
     card1Opacity.value = withDelay(300, withTiming(1, { duration: 400 }));

@@ -1,0 +1,408 @@
+You are now the PRIMARY RECOVERY ENGINEER for VEILCHAT.
+
+The app architecture already exists.
+DO NOT regenerate the project.
+DO NOT redesign the app.
+DO NOT replace stable systems.
+
+ONLY:
+- debug
+- restore
+- reconnect
+- stabilize
+- repair
+- optimize
+- productionize
+
+==================================================
+CURRENT PROJECT STATUS
+==================================================
+
+VEILCHAT already contains:
+- Expo React Native
+- Expo Router
+- Firebase
+- Supabase
+- Socket.IO
+- JWT auth
+- Adaptive Enhancement system
+- Cloudinary integration
+- Chat system
+- Status system
+- Call UI
+- Profile system
+- Settings system
+- Premium dark UI
+
+BUT many systems are currently broken after recent updates.
+
+==================================================
+CRITICAL ISSUES TO FIX
+==================================================
+
+1. Login screen broken on mobile
+2. Phone/email login options not visible
+3. Firebase OTP not arriving
+4. Cannot login
+5. Adaptive Enhancement (steganography) not working
+6. Icons replaced by box/square placeholders
+7. Chat buttons broken
+8. Some screens/features not functioning
+9. Settings screen partially broken
+10. Profile editing not working
+11. Navigation/UI regressions
+12. Potential import/font/icon failures
+13. Potential state management conflicts
+
+==================================================
+TOP PRIORITY
+==================================================
+
+Restore VEILCHAT into a fully working stable state WITHOUT destroying the premium UI/UX.
+
+==================================================
+STEP 1 — FIX MOBILE LOGIN SCREEN
+==================================================
+
+PROBLEM:
+On Expo/mobile:
+- phone login option missing
+- email login option missing
+- auth UI not rendering correctly
+
+TASKS:
+1. Audit auth navigation flow
+2. Audit onboarding/auth routing
+3. Verify Expo Router route registration
+4. Verify conditional rendering logic
+5. Verify Zustand auth state hydration
+6. Verify login screen components
+7. Fix hidden/missing auth buttons
+8. Ensure auth screens render correctly on:
+   - Expo Go
+   - Android
+   - iOS
+   - Web
+
+VERIFY:
+- phone login visible
+- email login visible
+- buttons clickable
+- navigation functional
+
+==================================================
+STEP 2 — FIX FIREBASE OTP SYSTEM
+==================================================
+
+PROBLEM:
+OTP not arriving on device.
+
+TASKS:
+1. Verify Firebase initialization
+2. Verify initializeApp() runs correctly
+3. Prevent duplicate Firebase initialization
+4. Verify expo-firebase-recaptcha integration
+5. Verify appVerifier flow
+6. Verify Authorized Domains compatibility
+7. Verify signInWithPhoneNumber
+8. Verify confirmationResult persistence
+9. Verify Firebase Auth session restoration
+
+IMPLEMENT:
+- resend timer
+- loading states
+- graceful retry handling
+- proper Firebase errors
+- network fallback handling
+
+IMPORTANT:
+Ensure REAL Firebase OTP delivery works on:
+- Expo Go
+- Android
+- iOS
+- Web
+
+==================================================
+STEP 3 — FIX LOGIN FLOW
+==================================================
+
+Verify COMPLETE auth chain:
+
+Phone/email
+→ Firebase auth
+→ Firebase token
+→ backend JWT exchange
+→ session persistence
+→ socket auth
+→ app navigation
+
+Fix:
+- failed JWT exchange
+- broken session storage
+- failed redirects
+- broken auth guards
+
+==================================================
+STEP 4 — FIX ICON SYSTEM
+==================================================
+
+CRITICAL ISSUE:
+All icons became square/box placeholders.
+
+This usually means:
+- icon font package broken
+- incorrect icon imports
+- Metro cache issue
+- Expo vector icon issue
+- missing font loading
+
+TASKS:
+1. Audit ALL icon imports
+2. Verify:
+   - lucide-react-native
+   - @expo/vector-icons
+   - expo-font
+3. Fix broken icon registry
+4. Restore original premium icons
+5. Verify all tab icons
+6. Verify all chat icons
+7. Verify call/video icons
+8. Verify settings icons
+9. Verify navigation icons
+
+IMPORTANT:
+Restore original UI quality.
+
+==================================================
+STEP 5 — FIX CHAT SCREEN
+==================================================
+
+Verify:
+- send button
+- call button
+- video button
+- reactions
+- replies
+- media uploads
+- message rendering
+- typing indicators
+- scrolling
+- input handling
+
+Fix:
+- broken handlers
+- stale state
+- event conflicts
+- navigation issues
+
+==================================================
+STEP 6 — FIX SETTINGS SCREEN
+==================================================
+
+Verify:
+- profile settings
+- privacy settings
+- adaptive enhancement settings
+- notifications
+- logout
+- account management
+
+Fix:
+- broken navigation
+- missing state updates
+- failed forms
+- failed persistence
+
+==================================================
+STEP 7 — FIX PROFILE EDITING
+==================================================
+
+Implement/fix:
+- username editing
+- avatar upload
+- bio editing
+- save/update profile
+- Supabase persistence
+- realtime profile updates
+
+==================================================
+STEP 8 — FIX ADAPTIVE ENHANCEMENT SYSTEM
+==================================================
+
+CRITICAL FEATURE.
+
+Current issue:
+Adaptive Enhancement (hidden encrypted image messaging) is not functioning correctly.
+
+PUBLIC UX LABELS MUST REMAIN:
+- Adaptive Enhancement
+- Smart Enhancement
+- AI Enhancement
+
+NEVER expose:
+- steganography
+- hidden messaging
+- secret messaging
+
+==================================================
+ADAPTIVE ENHANCEMENT REQUIREMENTS
+==================================================
+
+Verify/fix:
+1. image selection flow
+2. enhancement toggle
+3. hidden message input
+4. local encryption
+5. payload embedding
+6. image integrity preservation
+7. upload compatibility
+8. payload extraction
+9. hidden message decoding
+10. floating scanner UI
+11. key persistence
+12. wrong-key handling
+
+Ensure:
+- images look visually normal
+- hidden payload survives uploads/downloads
+- Cloudinary compatibility works
+- realtime chat compatibility works
+
+==================================================
+STEP 9 — FIX REALTIME CHAT SYSTEM
+==================================================
+
+Verify:
+- Supabase persistence
+- Socket.IO
+- realtime sync
+- typing indicators
+- read receipts
+- reconnect recovery
+- duplicate prevention
+- offline sync
+
+Remove:
+- fake/mock systems
+- placeholder replies
+
+==================================================
+STEP 10 — FIX NAVIGATION + UI REGRESSIONS
+==================================================
+
+Audit:
+- Expo Router
+- tab navigation
+- stack navigation
+- modal navigation
+- deep linking
+- gesture handling
+
+Fix:
+- broken routes
+- navigation loops
+- missing screens
+- stale navigation state
+
+==================================================
+STEP 11 — PERFORMANCE + STABILITY
+==================================================
+
+Fix:
+- rerender loops
+- memory leaks
+- stale listeners
+- socket cleanup
+- animation lag
+- image performance
+- large component bottlenecks
+
+==================================================
+STEP 12 — SECURITY
+==================================================
+
+Verify:
+- JWT handling
+- Firebase auth
+- secure storage
+- upload validation
+- socket authentication
+- Supabase row security
+
+==================================================
+STEP 13 — FULL PROJECT DIAGNOSTICS
+==================================================
+
+Run COMPLETE diagnostics for:
+
+1. auth
+2. Firebase
+3. OTP
+4. navigation
+5. UI rendering
+6. icons
+7. Supabase
+8. Socket.IO
+9. adaptive enhancement
+10. uploads
+11. profile editing
+12. settings
+13. realtime chat
+14. mobile compatibility
+
+==================================================
+AUTO FIX
+==================================================
+
+Automatically fix:
+- import errors
+- icon issues
+- font issues
+- route issues
+- state conflicts
+- TypeScript issues
+- stale hooks
+- duplicate listeners
+- invalid configs
+
+==================================================
+FINAL OUTPUT REQUIRED
+==================================================
+
+Generate a FINAL RECOVERY REPORT including:
+
+1. FIXED ISSUES
+2. REMAINING ISSUES
+3. ROOT CAUSES
+4. AFFECTED FILES
+5. PERFORMANCE RISKS
+6. SECURITY RISKS
+7. TEST RESULTS
+8. MOBILE TEST RESULTS
+9. FIREBASE TEST RESULTS
+10. ADAPTIVE ENHANCEMENT TEST RESULTS
+
+==================================================
+FINAL GOAL
+==================================================
+
+Restore VEILCHAT into a:
+- fully working
+- stable
+- realtime
+- secure
+- premium
+- cinematic
+- futuristic
+- production-quality messaging platform
+
+with:
+- working OTP login
+- working email login
+- working realtime messaging
+- working adaptive enhancement
+- restored premium icons
+- stable navigation
+- polished UI/UX
+- functioning settings/profile systems
+- working call/chat controls

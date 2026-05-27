@@ -2,15 +2,16 @@ import { env } from "@/src/config/env";
 
 // ─── Hex / Byte helpers ───────────────────────────────────────────────────────
 
-function hexToBytes(hex: string): Uint8Array {
-  const bytes = new Uint8Array(hex.length / 2);
+function hexToBytes(hex: string): Uint8Array<ArrayBuffer> {
+  const buf = new ArrayBuffer(hex.length / 2);
+  const bytes = new Uint8Array(buf);
   for (let i = 0; i < hex.length; i += 2) {
     bytes[i / 2] = parseInt(hex.slice(i, i + 2), 16);
   }
   return bytes;
 }
 
-function bytesToHex(bytes: Uint8Array): string {
+function bytesToHex(bytes: Uint8Array<ArrayBuffer>): string {
   return Array.from(bytes)
     .map((b) => b.toString(16).padStart(2, "0"))
     .join("");

@@ -9,28 +9,6 @@ args = ["pnpm", "store", "prune"]
 env = { "CI" = "true" }
 
 [workflows]
-runButton = "Project"
-
-[[workflows.workflow]]
-name = "Project"
-mode = "parallel"
-author = "agent"
-
-[[workflows.workflow.tasks]]
-task = "workflow.run"
-args = "VEILCHAT"
-
-[[workflows.workflow]]
-name = "VEILCHAT"
-author = "agent"
-
-[workflows.workflow.metadata]
-outputType = "webview"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "PORT=25596 pnpm --filter @workspace/veilchat run dev"
-waitForPort = 25596
 
 [agent]
 stack = "PNPM_WORKSPACE"
@@ -51,6 +29,10 @@ externalPort = 8081
 [[ports]]
 localPort = 25596
 externalPort = 3000
+
+[[ports]]
+localPort = 25597
+externalPort = 3002
 
 [userenv]
 

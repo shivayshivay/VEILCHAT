@@ -57,6 +57,7 @@
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.106.1",
+    "expo-file-system": "^19.0.22",
     "expo-firebase-recaptcha": "^2.3.1",
     "expo-secure-store": "^15.0.8",
     "firebase": "^12.13.0",

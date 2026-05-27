@@ -24,7 +24,6 @@ export default function SplashScreen() {
   const textY = useSharedValue(20);
   const taglineOpacity = useSharedValue(0);
   const dotOpacity = useSharedValue(0);
-  const screenOpacity = useSharedValue(1);
 
   useEffect(() => {
     logoOpacity.value = withDelay(100, withTiming(1, { duration: 600 }));
@@ -53,14 +52,11 @@ export default function SplashScreen() {
     dotOpacity.value = withDelay(1200, withTiming(1, { duration: 400 }));
 
     const nav = setTimeout(() => {
-      screenOpacity.value = withTiming(0, { duration: 400 }, () => {});
-      setTimeout(() => {
-        if (hasSeenOnboarding) {
-          router.replace("/(auth)/login");
-        } else {
-          router.replace("/(auth)/onboarding");
-        }
-      }, 350);
+      if (hasSeenOnboarding) {
+        router.replace("/(auth)/login");
+      } else {
+        router.replace("/(auth)/onboarding");
+      }
     }, 2600);
 
     return () => clearTimeout(nav);
@@ -84,12 +80,8 @@ export default function SplashScreen() {
   const dotAnimStyle = useAnimatedStyle(() => ({
     opacity: dotOpacity.value,
   }));
-  const screenAnimStyle = useAnimatedStyle(() => ({
-    opacity: screenOpacity.value,
-  }));
-
   return (
-    <Animated.View style={[styles.root, screenAnimStyle]}>
+    <View style={styles.root}>
       <View style={styles.center}>
         <View style={styles.logoWrap}>
           <Animated.View style={[styles.glow, glowAnimStyle]} />
@@ -114,7 +106,7 @@ export default function SplashScreen() {
           ))}
         </View>
       </Animated.View>
-    </Animated.View>
+    </View>
   );
 }
 

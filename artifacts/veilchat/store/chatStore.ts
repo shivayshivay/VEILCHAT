@@ -105,8 +105,8 @@ function seedConversation(contact: Contact, offset: number): Conversation {
 // ─── API helpers ─────────────────────────────────────────────────────────────
 
 function apiBase(): string {
-  const domain = env.apiUrl;
-  return domain ? `${domain}/api/chat` : "";
+  const domain = env.api.baseUrl;
+  return domain ? `${domain}/chat` : "";
 }
 
 async function apiFetch<T>(

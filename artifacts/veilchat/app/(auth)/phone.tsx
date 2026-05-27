@@ -39,7 +39,8 @@ export default function PhoneScreen() {
   const [countryCode, setCountryCode] = useState(COUNTRY_CODES[0]);
   const [showPicker, setShowPicker] = useState(false);
   const inputRef = useRef<TextInput>(null);
-  const recaptchaVerifierRef = useRef<FirebaseRecaptchaVerifierModal>(null);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const recaptchaVerifierRef = useRef<any>(null);
 
   const topPad = insets.top + (Platform.OS === "web" ? 67 : 0);
   const botPad = Math.max(insets.bottom, Platform.OS === "web" ? 34 : 24);
