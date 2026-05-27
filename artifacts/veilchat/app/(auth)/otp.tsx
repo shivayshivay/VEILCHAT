@@ -22,7 +22,7 @@ import Animated, {
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { useAuthStore } from "@/store/authStore";
-import { firebaseConfig, isFirebaseConfigured } from "@/src/config/firebase";
+import { firebaseConfig } from "@/src/config/firebase";
 
 // FirebaseRecaptchaVerifierModal — native only
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -37,7 +37,7 @@ const RESEND_SECONDS = 60;
 
 export default function OtpScreen() {
   const insets = useSafeAreaInsets();
-  const { verifyOtp, loginWithPhone, pendingPhone, isLoading, error, setError } = useAuthStore();
+  const { verifyOtp, loginWithPhone, pendingPhone, isLoading, error, setError, isDemoMode } = useAuthStore();
 
   const [otp, setOtp] = useState<string[]>(Array(OTP_LENGTH).fill(""));
   const [activeIndex, setActiveIndex] = useState(0);
@@ -276,12 +276,7 @@ export default function OtpScreen() {
                 <Ionicons name="alert-circle-outline" size={14} color="#EF4444" />
                 <Text style={styles.errorText}>{error}</Text>
               </View>
-            ) : isFirebaseConfigured ? (
-              <View style={styles.feedbackRow}>
-                <Ionicons name="shield-checkmark-outline" size={14} color="#374151" />
-                <Text style={styles.hint}>Firebase SMS verification active</Text>
-              </View>
-            ) : (
+            ) : isDemoMode ? (
               <View style={styles.feedbackRow}>
                 <Ionicons name="information-circle-outline" size={14} color="#374151" />
                 <Text style={styles.hint}>
@@ -291,6 +286,11 @@ export default function OtpScreen() {
                   </Text>{" "}
                   to auto-fill
                 </Text>
+              </View>
+            ) : (
+              <View style={styles.feedbackRow}>
+                <Ionicons name="shield-checkmark-outline" size={14} color="#374151" />
+                <Text style={styles.hint}>SMS verification code sent</Text>
               </View>
             )}
 

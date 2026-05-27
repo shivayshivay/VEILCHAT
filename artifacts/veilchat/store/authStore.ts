@@ -50,6 +50,7 @@ interface AuthStore {
   pendingEmail: string;
   error: string | null;
   hasSeenOnboarding: boolean;
+  isDemoMode: boolean;
 
   get isAuthenticated(): boolean;
   get accessToken(): string | null;
@@ -78,6 +79,7 @@ export const useAuthStore = create<AuthStore>()(
       pendingEmail: "",
       error: null,
       hasSeenOnboarding: false,
+      isDemoMode: !isFirebaseEnvConfigured,
 
       get isAuthenticated() {
         return get().user !== null;
@@ -99,25 +101,37 @@ export const useAuthStore = create<AuthStore>()(
           if (isFirebaseEnvConfigured && appVerifier) {
             const { firebaseAuth } = await import("@/src/config/firebase");
             if (firebaseAuth) {
-              const { signInWithPhoneNumber } = await import("firebase/auth");
-              _confirmationResult = await signInWithPhoneNumber(
-                firebaseAuth,
-                phone,
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                appVerifier as any
-              );
-              set({ pendingPhone: phone });
-              return;
+              try {
+                const { signInWithPhoneNumber } = await import("firebase/auth");
+                _confirmationResult = await signInWithPhoneNumber(
+                  firebaseAuth,
+                  phone,
+                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                  appVerifier as any
+                );
+                set({ pendingPhone: phone });
+                return;
+              } catch (firebaseErr: unknown) {
+                const code = (firebaseErr as { code?: string }).code ?? "";
+                const knownMsg = FIREBASE_ERRORS[code];
+                if (knownMsg) {
+                  // Known Firebase error — surface it clearly
+                  set({ error: knownMsg });
+                  throw firebaseErr;
+                }
+                // Unknown/network/reCAPTCHA failure — fall through to demo mode
+                console.warn("[auth] Firebase phone auth failed, falling back to demo mode:", firebaseErr);
+              }
             }
           }
-          // Demo fallback — no verifier or Firebase not configured
+          // Demo fallback — Firebase not configured, no verifier, or Firebase failed
           console.info("[auth] Demo mode — OTP not sent via SMS. Use code: 123456");
           await new Promise((r) => setTimeout(r, 900));
-          set({ pendingPhone: phone });
+          set({ pendingPhone: phone, isDemoMode: true });
         } catch (e: unknown) {
-          const code = (e as { code?: string }).code ?? "";
-          const msg = FIREBASE_ERRORS[code] ?? (e instanceof Error ? e.message : "Failed to send code");
-          set({ error: msg });
+          if (!(e instanceof Error && 'code' in e)) {
+            set({ error: "Failed to send code. Please try again." });
+          }
           throw e;
         } finally {
           set({ isLoading: false });

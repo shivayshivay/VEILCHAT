@@ -1,0 +1,208 @@
+Now implement the complete production-ready WebRTC calling infrastructure for VEILCHAT.
+
+IMPORTANT:
+Do NOT redesign the app.
+Do NOT regenerate the architecture.
+
+ONLY:
+- connect
+- implement
+- stabilize
+- optimize
+- secure
+
+==================================================
+GOAL
+==================================================
+
+Transform VEILCHAT into a full realtime communication platform with:
+
+✅ voice calls
+✅ video calls
+✅ realtime signaling
+✅ reconnect handling
+✅ secure call architecture
+✅ premium calling UI
+
+==================================================
+CURRENT STATUS
+==================================================
+
+Already exists:
+- call UI
+- Socket.IO backend
+- JWT auth
+- Firebase auth
+- Supabase
+- realtime infrastructure
+- chat system
+- contacts system
+
+Now implement the ACTUAL calling engine.
+
+==================================================
+REQUIRED STACK
+==================================================
+
+Use:
+- react-native-webrtc
+- Socket.IO signaling
+- STUN/TURN architecture
+- JWT-authenticated signaling
+- Expo-compatible setup where possible
+
+==================================================
+SIGNALING REQUIREMENTS
+==================================================
+
+Implement Socket.IO signaling events:
+
+- call:start
+- call:offer
+- call:answer
+- call:ice-candidate
+- call:end
+- call:reject
+- call:busy
+
+==================================================
+VOICE CALL REQUIREMENTS
+==================================================
+
+Implement:
+✅ outgoing calls
+✅ incoming calls
+✅ call ringing
+✅ mute
+✅ speaker toggle
+✅ reconnect handling
+✅ background recovery
+✅ call duration
+✅ end call flow
+
+==================================================
+VIDEO CALL REQUIREMENTS
+==================================================
+
+Implement:
+✅ camera preview
+✅ front/back camera switch
+✅ local stream
+✅ remote stream
+✅ video mute
+✅ reconnect handling
+✅ fullscreen transitions
+✅ low-latency rendering
+
+==================================================
+SECURITY REQUIREMENTS
+==================================================
+
+Ensure:
+- authenticated signaling only
+- JWT validation on sockets
+- encrypted WebRTC channels
+- unauthorized call prevention
+- secure ICE handling
+
+==================================================
+CALL UX REQUIREMENTS
+==================================================
+
+The call experience must feel:
+- premium
+- futuristic
+- cinematic
+- smooth
+- minimal
+
+Style:
+- AMOLED dark
+- neon cyan glow
+- floating controls
+- glassmorphism
+- smooth transitions
+- subtle animations
+
+==================================================
+CALL SCREEN FEATURES
+==================================================
+
+Implement:
+✅ animated avatar
+✅ connection states
+✅ reconnect states
+✅ ringing animation
+✅ waveform effects
+✅ draggable local preview
+✅ smooth call transitions
+
+==================================================
+PERFORMANCE REQUIREMENTS
+==================================================
+
+Optimize:
+- media stream cleanup
+- peer connection cleanup
+- reconnect speed
+- memory usage
+- socket cleanup
+- background transitions
+
+==================================================
+NETWORK REQUIREMENTS
+==================================================
+
+Implement:
+- ICE candidate buffering
+- reconnect recovery
+- unstable network handling
+- graceful degradation
+- call timeout handling
+
+==================================================
+TURN/STUN REQUIREMENTS
+==================================================
+
+Implement scalable configuration support for:
+- Google STUN
+- TURN fallback
+- future Coturn integration
+
+==================================================
+PERMISSIONS
+==================================================
+
+Ensure:
+- microphone permissions
+- camera permissions
+- graceful denial handling
+- platform compatibility
+
+==================================================
+TESTING REQUIREMENTS
+==================================================
+
+Run diagnostics for:
+1. outgoing calls
+2. incoming calls
+3. video rendering
+4. reconnect handling
+5. ICE negotiation
+6. audio routing
+7. permission handling
+8. cleanup verification
+
+Generate:
+- working systems
+- broken systems
+- performance bottlenecks
+- affected files
+- fixes applied
+
+==================================================
+FINAL GOAL
+==================================================
+
+VEILCHAT should now feel like:
+a next-generation private communication platform with premium realtime voice/video calling, adaptive hidden messaging, and futuristic security-focused UX.
